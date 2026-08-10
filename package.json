@@ -1,10 +1,9 @@
 {
-  "name": "kasapp2",
+  "name": "kasapp-frontend",
+  "private": true,
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "dev": "nodemon --exec ts-node src/server.ts",
+   "scripts": {
+    "dev": "vite",
     "build": "tsc && vite build client",
     "build:client": "vite build",
     "start": "node dist/server.js"
