@@ -1,19 +1,19 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite'; 
-import path from 'path';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    root: 'client',
-    plugins: [react(), 
+    // 1. Removed root: 'client' - Vite will now look in the current folder for index.html
+    plugins: [
+      react(), 
       tailwindcss()
     ],
     build: {
-      // Relative to root ('client'), '../dist-client' outputs to '/app/dist-client'
-      outDir: '../dist-client',
+      // 2. Output to standard 'dist' folder so Vercel can find it automatically
+      outDir: 'dist',
       emptyOutDir: true,
     },
     server: {
