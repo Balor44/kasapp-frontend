@@ -1,0 +1,61 @@
+{
+  "name": "kasapp2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "build": "tsc && vite build client",
+    "build:client": "vite build",
+    "start": "node dist/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Balor44/kasapp2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Balor44/kasapp2/issues"
+  },
+  "homepage": "https://github.com/Balor44/kasapp2#readme",
+  "dependencies": {
+    "@google/genai": "^2.15.0",
+    "axios": "^1.18.1",
+    "bcrypt": "^6.0.0",
+    "bip39": "^3.1.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "flutterwave-node-v3": "^1.4.1",
+    "isomorphic-ws": "^5.0.0",
+    "kaspa-wasm": "file:vendor/kaspa-wasm-2.0.1.tgz",
+    "libphonenumber-js": "^1.13.10",
+    "mongoose": "^9.7.4",
+    "node-cron": "^4.6.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "undici": "^8.9.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.2",
+    "@types/node-cron": "^3.0.11",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "autoprefixer": "^10.5.4",
+    "lucide-react": "^1.28.0",
+    "nodemon": "^3.1.14",
+    "postcss": "^8.5.25",
+    "tailwindcss": "^4.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "vite": "^8.1.5"
+  }
+}
