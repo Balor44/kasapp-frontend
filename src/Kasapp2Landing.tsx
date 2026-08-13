@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Menu, X, ArrowRight, Zap, Shield, MessageSquare, Clock,
   ExternalLink, GraduationCap, CheckCircle, Sparkles, Copy, Check,
-  Smartphone, Lightbulb, Tv, ShoppingBag, Send, ArrowLeft
+  Smartphone, Lightbulb, Tv, ShoppingBag, Send, ArrowLeft, CreditCard
 } from 'lucide-react';
 import { BlockDAGWatermark } from './components/BlockDAGAnimation';
 
@@ -30,11 +30,15 @@ export default function KasappLanding() {
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [buyEmail, setBuyEmail] = useState('');
   const [buyPhone, setBuyPhone] = useState('');
-  const [buyAmount, setBuyAmount] = useState('1000');
+  
+  // Updated Amount & Gateway State
+  const [buyAmount, setBuyAmount] = useState<number | ''>(3000);
+  const [amountError, setAmountError] = useState('');
+  const [paymentGateway, setPaymentGateway] = useState<'paystack' | 'flutterwave'>('paystack');
   const [isInitializing, setIsInitializing] = useState(false);
 
 
-  // Post-Purchase Voucher State (Generated after Flutterwave checkout)
+  // Post-Purchase Voucher State (Generated after checkout)
   const [purchasedVoucher, setPurchasedVoucher] = useState<{
     code: string;
     amountKas: number;
@@ -43,8 +47,8 @@ export default function KasappLanding() {
 
 
   // Interactive WhatsApp Simulation State
-  const kasRate = 250; // 1 KAS ~ ₦250 NGN
-  const [kasBalance, setKasBalance] = useState<number>(1250.50);
+  const kasRate = 35; // 1 KAS ~ ₦35 NGN
+  const [kasBalance, setKasBalance] = useState<number>(8900.50);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [simulatedMessages, setSimulatedMessages] = useState<Message[]>([
     {
@@ -56,7 +60,7 @@ export default function KasappLanding() {
     {
       id: 2,
       sender: 'bot',
-      text: `💰 *Your Kasapp Balance:*\n\n*1,250.50 KAS*\n≈ *₦312,625 NGN*\n\nType *airtime*, *send*, or *help* for options.`,
+      text: `💰 *Your Kasapp Balance:*\n\n*8,900.50 KAS*\n≈ *₦311,517.50 NGN*\n\nType *airtime*, *send*, or *help* for options.`,
       time: '10:00 AM',
     },
   ]);
@@ -65,7 +69,7 @@ export default function KasappLanding() {
   const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 
-  // State Detection: Listen for URL query params when redirected back from Flutterwave checkout
+  // State Detection: Listen for URL query params when redirected back from checkout
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const voucherCode = urlParams.get('voucher_code') || urlParams.get('code');
@@ -77,7 +81,7 @@ export default function KasappLanding() {
       setPurchasedVoucher({
         code: voucherCode,
         amountKas: parseFloat(kasAmount),
-        amountNaira: parseFloat(nairaAmount || '1000'),
+        amountNaira: parseFloat(nairaAmount || '3000'),
       });
     }
   }, []);
@@ -90,6 +94,14 @@ export default function KasappLanding() {
 
   const handlePurchaseVoucher = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Final validation catch before submission
+    if (buyAmount === '' || buyAmount < 3000) {
+      setAmountError('Please enter a valid amount of at least ₦3,000.');
+      return;
+    }
+
+
     setIsInitializing(true);
     try {
       const res = await fetch(`${API_BASE}/payment/initialize`, {
@@ -100,6 +112,7 @@ export default function KasappLanding() {
           phone: buyPhone,
           amountNaira: Number(buyAmount),
           currency: 'NGN',
+          gateway: paymentGateway, // Tells the backend which processor to use
           redirect_url: `${window.location.origin}/`,
         }),
       });
@@ -109,7 +122,7 @@ export default function KasappLanding() {
       if (res.ok && data.payment_url) {
         window.location.href = data.payment_url;
       } else {
-        alert(data.error || 'Failed to initialize payment gateway.');
+        alert(data.error || `Failed to initialize ${paymentGateway}.`);
       }
     } catch {
       alert('Network error initializing payment gateway.');
@@ -230,7 +243,6 @@ export default function KasappLanding() {
             </p>
 
 
-            {/* Voucher Code Box */}
             <div className="w-full bg-[#F8FAF8] border-2 border-dashed border-emerald-400 rounded-2xl p-5 mb-6 text-center">
               <span className="text-[10px] uppercase font-bold text-zinc-400 block mb-1">Voucher Code</span>
               <span className="text-3xl font-mono font-black text-emerald-700 tracking-wider block select-all">
@@ -242,7 +254,6 @@ export default function KasappLanding() {
             </div>
 
 
-            {/* 1-TAP AUTO-REDEEM BUTTON */}
             <a
               href={buildWaRedeemLink(purchasedVoucher.code)}
               target="_blank"
@@ -733,7 +744,7 @@ export default function KasappLanding() {
           <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
             <button
               onClick={() => setShowBuyModal(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-700 p-1"
+              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-700 p-1 transition-colors"
             >
               <X size={20} />
             </button>
@@ -743,60 +754,127 @@ export default function KasappLanding() {
               <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl">
                 <ShoppingBag size={20} />
               </div>
-              <h3 className="text-xl font-extrabold text-zinc-900">Checkout with Flutterwave</h3>
+              <h3 className="text-xl font-extrabold text-zinc-900">Purchase Voucher</h3>
             </div>
-            <p className="text-xs text-zinc-500 mb-5">Pay via Bank Transfer, Debit Card, or USSD to generate your Kaspa voucher.</p>
+            <p className="text-xs text-zinc-500 mb-5">Pay via Card or Bank Transfer to generate a redeemable Kaspa voucher code.</p>
 
 
-            <form onSubmit={handlePurchaseVoucher} className="flex flex-col gap-3.5">
+            <form onSubmit={handlePurchaseVoucher} className="flex flex-col gap-4">
+              
+              {/* Payment Gateway Selection */}
               <div>
-                <label className="text-[11px] font-bold text-zinc-700 block mb-1">WhatsApp Phone Number</label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="e.g. 08012345678"
-                  value={buyPhone}
-                  onChange={(e) => setBuyPhone(e.target.value)}
-                  className="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 focus:bg-white transition"
-                />
+                <label className="text-[11px] font-bold text-zinc-700 block mb-2 uppercase tracking-wider">1. Select Payment Method</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentGateway('paystack')}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
+                      paymentGateway === 'paystack' 
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-700' 
+                        : 'bg-zinc-50 border-zinc-200 text-zinc-500 hover:bg-zinc-100'
+                    }`}
+                  >
+                    <CreditCard size={16} /> Paystack
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentGateway('flutterwave')}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
+                      paymentGateway === 'flutterwave' 
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-700' 
+                        : 'bg-zinc-50 border-zinc-200 text-zinc-500 hover:bg-zinc-100'
+                    }`}
+                  >
+                    🌊 Flutterwave
+                  </button>
+                </div>
               </div>
 
 
+              <hr className="border-zinc-100" />
+
+
+              {/* Amount Selection */}
               <div>
-                <label className="text-[11px] font-bold text-zinc-700 block mb-1">Email Address</label>
+                <label className="text-[11px] font-bold text-zinc-700 block mb-2 uppercase tracking-wider">2. Select Amount (NGN)</label>
+                <div className="flex gap-2 mb-3">
+                  {[3000, 5000, 10000].map(preset => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => { setBuyAmount(preset); setAmountError(''); }}
+                      className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition ${
+                        buyAmount === preset 
+                          ? 'bg-zinc-900 border-zinc-900 text-white' 
+                          : 'bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-100'
+                      }`}
+                    >
+                      ₦{preset.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+                
                 <input
-                  type="email"
-                  required
-                  placeholder="name@example.com"
-                  value={buyEmail}
-                  onChange={(e) => setBuyEmail(e.target.value)}
-                  className="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 focus:bg-white transition"
-                />
-              </div>
-
-
-              <div>
-                <label className="text-[11px] font-bold text-zinc-700 block mb-1">Voucher Amount (NGN)</label>
-                <select
+                  type="number"
+                  placeholder="Or enter custom amount (Min ₦3,000)"
                   value={buyAmount}
-                  onChange={(e) => setBuyAmount(e.target.value)}
-                  className="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 focus:bg-white font-semibold transition"
-                >
-                  <option value="500">₦500 NGN</option>
-                  <option value="1000">₦1,000 NGN</option>
-                  <option value="2000">₦2,000 NGN</option>
-                  <option value="5000">₦5,000 NGN</option>
-                  <option value="10000">₦10,000 NGN</option>
-                </select>
+                  onChange={(e) => {
+                    const val = e.target.value ? parseInt(e.target.value, 10) : '';
+                    setBuyAmount(val);
+                    if (val !== '' && val < 3000) {
+                      setAmountError('The minimum voucher amount is ₦3,000.');
+                    } else {
+                      setAmountError('');
+                    }
+                  }}
+                  className={`w-full bg-zinc-50 border ${
+                    amountError ? 'border-red-400 focus:border-red-500 focus:bg-white' : 'border-zinc-300 focus:border-emerald-500 focus:bg-white'
+                  } rounded-xl px-3.5 py-2.5 text-xs outline-none transition font-medium`}
+                />
+                {amountError && <p className="text-[10px] text-red-500 mt-1.5 font-bold">{amountError}</p>}
               </div>
 
 
+              <hr className="border-zinc-100" />
+
+
+              {/* User Details */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-bold text-zinc-700 block mb-1">WhatsApp Number</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="e.g. 08012345678"
+                    value={buyPhone}
+                    onChange={(e) => setBuyPhone(e.target.value)}
+                    className="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 focus:bg-white transition"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-zinc-700 block mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="name@example.com"
+                    value={buyEmail}
+                    onChange={(e) => setBuyEmail(e.target.value)}
+                    className="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 focus:bg-white transition"
+                  />
+                </div>
+              </div>
+
+
+              {/* Checkout Action */}
               <button
                 type="submit"
-                disabled={isInitializing}
-                className="w-full mt-2 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-2"
+                disabled={isInitializing || (buyAmount !== '' && buyAmount < 3000)}
+                className="w-full mt-2 py-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2"
               >
-                {isInitializing ? 'Generating Payment Link...' : `Pay ₦${Number(buyAmount).toLocaleString()} with Flutterwave 💳`}
+                {isInitializing 
+                  ? 'Connecting to Gateway...' 
+                  : `Pay ₦${(buyAmount || 0).toLocaleString()} with ${paymentGateway === 'paystack' ? 'Paystack' : 'Flutterwave'}`
+                }
               </button>
             </form>
           </div>
