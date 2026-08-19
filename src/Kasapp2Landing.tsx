@@ -561,7 +561,7 @@ export default function KasappLanding() {
             <span>© 2026 Kasapp Technologies Ltd.</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="https://github.com/Balor44/kasapp2/README.md" target="_blank" rel="noreferrer" className="hover:text-gray-900 font-medium">Docs</a>
+            <a href="https://github.com/Balor44/kasapp2/blob/main/README.md" target="_blank" rel="noreferrer" className="hover:text-gray-900 font-medium">Docs</a>
             <a href="https://x.com/kasapp" target="_blank" rel="noreferrer" className="hover:text-gray-900 font-medium">Community</a>
             <a href="#security" className="hover:text-gray-900 font-medium">Privacy</a>
           </div>
