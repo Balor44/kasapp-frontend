@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Menu, X, ArrowRight, Zap, Shield, MessageSquare, Clock,
-  ExternalLink, GraduationCap, CheckCircle, Sparkles, Copy, Check,
-  Smartphone, Lightbulb, Tv, ShoppingBag, Send, ArrowLeft, CreditCard
+  Menu, X, Send, PhoneCall, Zap, ArrowLeftRight, Lock, Key, ShieldCheck,
+  ExternalLink, CheckCircle, Sparkles, Copy, Check, ArrowRight, Camera, 
+  Mic, Paperclip, CheckCircle2, ArrowLeft, ShoppingBag
 } from 'lucide-react';
 import { BlockDAGWatermark } from './components/BlockDAGAnimation';
 
@@ -15,7 +15,8 @@ interface Message {
 }
 
 
-const BOT_PHONE_NUMBER = import.meta.env.VITE_WHATSAPP_BOT_NUMBER || '2348000000000'; // E.164 format without '+'
+const BOT_PHONE_NUMBER = import.meta.env.VITE_WHATSAPP_BOT_NUMBER || '2348000000000'; 
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 
 export default function KasappLanding() {
@@ -30,11 +31,8 @@ export default function KasappLanding() {
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [buyEmail, setBuyEmail] = useState('');
   const [buyPhone, setBuyPhone] = useState('');
-  
-  // Updated Amount & Gateway State
   const [buyAmount, setBuyAmount] = useState<number | ''>(3000);
   const [amountError, setAmountError] = useState('');
-  const [paymentGateway, setPaymentGateway] = useState<'paystack' | 'flutterwave'>('paystack');
   const [isInitializing, setIsInitializing] = useState(false);
 
 
@@ -44,29 +42,6 @@ export default function KasappLanding() {
     amountKas: number;
     amountNaira: number;
   } | null>(null);
-
-
-  // Interactive WhatsApp Simulation State
-  const kasRate = 35; // 1 KAS ~ ₦35 NGN
-  const [kasBalance, setKasBalance] = useState<number>(8900.50);
-  const [isTyping, setIsTyping] = useState<boolean>(false);
-  const [simulatedMessages, setSimulatedMessages] = useState<Message[]>([
-    {
-      id: 1,
-      sender: 'user',
-      text: 'balance',
-      time: '10:00 AM',
-    },
-    {
-      id: 2,
-      sender: 'bot',
-      text: `💰 *Your Kasapp Balance:*\n\n*8,900.50 KAS*\n≈ *₦311,517.50 NGN*\n\nType *airtime*, *send*, or *help* for options.`,
-      time: '10:00 AM',
-    },
-  ]);
-
-
-  const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 
   // State Detection: Listen for URL query params when redirected back from checkout
@@ -94,8 +69,6 @@ export default function KasappLanding() {
 
   const handlePurchaseVoucher = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Final validation catch before submission
     if (buyAmount === '' || buyAmount < 3000) {
       setAmountError('Please enter a valid amount of at least ₦3,000.');
       return;
@@ -112,7 +85,7 @@ export default function KasappLanding() {
           phone: buyPhone,
           amountNaira: Number(buyAmount),
           currency: 'NGN',
-          gateway: paymentGateway, // Tells the backend which processor to use
+          gateway: 'paystack', // Flutterwave removed per your instruction
           redirect_url: `${window.location.origin}/`,
         }),
       });
@@ -122,7 +95,7 @@ export default function KasappLanding() {
       if (res.ok && data.payment_url) {
         window.location.href = data.payment_url;
       } else {
-        alert(data.error || `Failed to initialize ${paymentGateway}.`);
+        alert(data.error || `Failed to initialize Paystack.`);
       }
     } catch {
       alert('Network error initializing payment gateway.');
@@ -171,225 +144,99 @@ export default function KasappLanding() {
   };
 
 
-  const runSimulatedBillPay = () => {
-    if (simulatedMessages.length > 2) return;
-    setIsTyping(true);
-
-
-    setTimeout(() => {
-      setIsTyping(false);
-      setSimulatedMessages((prev) => [
-        ...prev,
-        {
-          id: 3,
-          sender: 'user',
-          text: 'airtime MTN 07031551438 1000',
-          time: '10:01 AM',
-        },
-      ]);
-      setIsTyping(true);
-    }, 1500);
-
-
-    setTimeout(() => {
-      const airtimeNaira = 1000;
-      const kasDeducted = airtimeNaira / kasRate;
-      const newBalance = kasBalance - kasDeducted;
-      setKasBalance(newBalance);
-
-
-      setIsTyping(false);
-      setSimulatedMessages((prev) => [
-        ...prev,
-        {
-          id: 4,
-          sender: 'bot',
-          text: `📱 *Airtime Purchase Successful!*\n\n• *Service:* MTN Airtime\n• *Recipient:* 07031551438\n• *Amount:* ₦1,000 NGN\n• *Deducted:* -${kasDeducted.toFixed(2)} KAS\n\n💰 *New Balance:* ${newBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })} KAS (≈ ₦${(newBalance * kasRate).toLocaleString('en-US')} NGN)`,
-          time: '10:01 AM',
-        },
-      ]);
-    }, 3800);
-  };
-
-
   // ==========================================================================
   // STATE B: POST-PURCHASE STATE (1-TAP AUTO-REDEEM VIEW)
   // ==========================================================================
   if (purchasedVoucher) {
     return (
-      <div className="min-h-screen bg-[#F6F8F6] text-zinc-800 font-sans flex flex-col justify-between relative overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-60">
-          <BlockDAGWatermark />
-        </div>
-
-
+      <div className="min-h-screen bg-[#FBFBFB] text-[#111827] font-sans flex flex-col justify-between relative overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-40"><BlockDAGWatermark /></div>
         <main className="relative z-10 container mx-auto px-6 py-12 max-w-md my-auto text-center">
-          <div className="bg-white/95 backdrop-blur-md p-8 rounded-3xl border border-zinc-200/90 shadow-2xl flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4 shadow-sm animate-bounce">
+          <div className="bg-white/95 backdrop-blur-md p-8 rounded-3xl border border-gray-200 shadow-2xl flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-[#D9FDD3] text-[#075E54] flex items-center justify-center mb-4 shadow-sm">
               <CheckCircle size={36} />
             </div>
-
-
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full mb-2">
-              Payment Successful 🎉
+            <span className="text-xs font-bold uppercase tracking-wider text-[#075E54] bg-[#D9FDD3] px-3 py-1 rounded-full mb-2">
+              Payment Successful
             </span>
-
-
-            <h1 className="text-2xl font-extrabold text-zinc-900 mb-1">
-              Your Kasapp Voucher is Ready
-            </h1>
-            <p className="text-xs text-zinc-500 mb-6">
-              Tap below to redeem on WhatsApp instantly with zero typing.
-            </p>
-
-
-            <div className="w-full bg-[#F8FAF8] border-2 border-dashed border-emerald-400 rounded-2xl p-5 mb-6 text-center">
-              <span className="text-[10px] uppercase font-bold text-zinc-400 block mb-1">Voucher Code</span>
-              <span className="text-3xl font-mono font-black text-emerald-700 tracking-wider block select-all">
+            <h1 className="text-2xl font-extrabold text-gray-900 mb-1">Your Kasapp Voucher is Ready</h1>
+            <p className="text-xs text-gray-500 mb-6">Tap below to redeem on WhatsApp instantly.</p>
+            <div className="w-full bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl p-5 mb-6 text-center">
+              <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Voucher Code</span>
+              <span className="text-2xl sm:text-3xl font-mono font-black text-gray-900 tracking-wider block select-all">
                 {purchasedVoucher.code}
               </span>
-              <span className="text-xs text-zinc-500 mt-2 block font-medium">
+              <span className="text-xs text-gray-500 mt-2 block font-medium">
                 Value: <strong>{purchasedVoucher.amountKas.toFixed(2)} KAS</strong> (₦{purchasedVoucher.amountNaira.toLocaleString()})
               </span>
             </div>
-
-
             <a
               href={buildWaRedeemLink(purchasedVoucher.code)}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-4 px-4 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-[1.02]"
+              className="w-full py-4 px-4 bg-black hover:bg-gray-800 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition-transform"
             >
-              <Send size={18} />
-              Auto-Redeem on WhatsApp 🚀
+              <Send size={18} /> Auto-Redeem on WhatsApp
             </a>
-
-
             <button
               onClick={() => {
                 setPurchasedVoucher(null);
                 window.history.replaceState({}, document.title, window.location.pathname);
               }}
-              className="text-xs text-zinc-400 hover:text-zinc-600 mt-5 underline font-medium flex items-center justify-center gap-1"
+              className="text-xs text-gray-400 hover:text-gray-900 mt-5 underline font-medium flex items-center justify-center gap-1"
             >
               <ArrowLeft size={12} /> Buy Another Voucher
             </button>
           </div>
         </main>
-
-
-        <footer className="relative z-10 py-6 text-center text-xs text-zinc-400">
-          © 2026 Kasapp. Built for the Kaspa Ecosystem.
-        </footer>
       </div>
     );
   }
 
 
   // ==========================================================================
-  // WAITLIST SUCCESS VIEW
+  // STATE C: WAITLIST SUCCESS VIEW
   // ==========================================================================
   if (status === 'success') {
     return (
-      <div className="min-h-screen bg-[#F6F8F6] text-zinc-800 font-sans flex flex-col justify-between relative overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-60">
-          <BlockDAGWatermark />
-        </div>
-
-
-        <header className="relative z-10 container mx-auto px-6 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M50 10C27.9086 10 10 26.1177 10 46C10 54.852 13.5186 62.9431 19.3897 69.1026L14 88L33.7226 82.2661C38.6816 84.6687 44.1834 86 50 86C72.0914 86 90 69.8823 90 50C90 30.1177 72.0914 10 50 10Z" fill="#16A344"/>
-              <path d="M36 32V68M36 50L58 32M36 50L58 68M46 50H66" stroke="white" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-xl font-bold tracking-tight text-[#0F172A]">Kasapp</span>
+      <div className="min-h-screen bg-[#FBFBFB] text-[#111827] font-sans flex flex-col justify-between relative overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-40"><BlockDAGWatermark /></div>
+        <header className="relative z-10 container mx-auto px-6 py-6 flex items-center justify-between max-w-6xl">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#22C55E] flex items-center justify-center text-white font-black text-lg">K</div>
+            <span className="text-xl font-bold tracking-tight text-gray-900">KASAPP</span>
           </div>
-
-
-          <button
-            onClick={() => { setStatus('idle'); setPhone(''); }}
-            className="text-xs font-semibold text-zinc-500 hover:text-zinc-800 underline"
-          >
+          <button onClick={() => { setStatus('idle'); setPhone(''); }} className="text-sm font-semibold text-gray-500 hover:text-gray-900">
             ← Back to Home
           </button>
         </header>
 
 
         <main className="relative z-10 container mx-auto px-6 py-12 max-w-xl text-center">
-          <div className="bg-white/90 backdrop-blur-md p-8 md:p-12 rounded-3xl border border-zinc-200/90 shadow-xl flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-6 shadow-sm animate-bounce">
+          <div className="bg-white/95 backdrop-blur-md p-8 md:p-12 rounded-3xl border border-gray-200 shadow-xl flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-[#D9FDD3] text-[#075E54] flex items-center justify-center mb-6">
               <CheckCircle size={36} />
             </div>
-
-
-            <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
-              <Sparkles size={14} /> You're On The List!
+            <div className="inline-flex items-center gap-1.5 bg-[#D9FDD3] text-[#075E54] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
+              <Sparkles size={14} /> You're On The List
             </div>
-
-
-            <h1 className="text-3xl md:text-4xl font-extrabold text-zinc-900 mb-2">
-              Welcome to Kasapp ⚡
-            </h1>
-
-
-            <p className="text-zinc-600 text-sm mb-6 leading-relaxed">
-              We've registered your WhatsApp number <strong className="text-zinc-900">{phone}</strong> for early access testing.
+            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">Welcome to Kasapp</h1>
+            <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+              We've registered <strong className="text-gray-900">{phone}</strong> for early access testing.
             </p>
-
-
-            <div className="w-full bg-[#F8FAF8] border border-emerald-200 rounded-2xl p-6 mb-8 text-center">
-              <span className="text-xs uppercase font-bold text-zinc-400 tracking-wider block">Your Waitlist Position</span>
-              <span className="text-4xl md:text-5xl font-black text-emerald-600 mt-1 block">
-                #{number || '1'}
-              </span>
-              <p className="text-xs text-zinc-500 mt-2">
-                We are onboarding users sequentially in Nigeria. You will receive a direct WhatsApp message when your access key goes live.
-              </p>
+            <div className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-6 mb-8 text-center">
+              <span className="text-xs uppercase font-bold text-gray-500 tracking-wider block">Your Waitlist Position</span>
+              <span className="text-4xl md:text-5xl font-black text-[#22C55E] mt-1 block">#{number || '1'}</span>
+              <p className="text-xs text-gray-500 mt-2">You will receive a direct WhatsApp message when your access key goes live.</p>
             </div>
-
-
-            <div className="w-full text-left mb-6">
-              <label className="text-xs font-bold text-zinc-700 block mb-2">
-                Share Kasapp with friends:
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={typeof window !== 'undefined' ? window.location.origin : 'Kasapp'}
-                  className="flex-1 bg-zinc-100 border border-zinc-200 rounded-xl px-4 py-2.5 text-xs text-zinc-600 outline-none"
-                />
-                <button
-                  onClick={copyInviteLink}
-                  className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shrink-0"
-                >
-                  {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? "Copied!" : "Copy Link"}
-                </button>
-              </div>
-            </div>
-
-
             <div className="w-full flex flex-col gap-3">
-              <a
-                href="https://kaspa.university"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3 px-4 bg-zinc-900 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors"
-              >
-                <GraduationCap size={16} />
-                Learn GHOSTDAG at Kaspa University
-                <ExternalLink size={12} />
-              </a>
+              <button onClick={copyInviteLink} className="w-full bg-gray-900 text-white px-4 py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition flex items-center justify-center gap-2">
+                {copied ? <Check size={16} /> : <Copy size={16} />}
+                {copied ? "Link Copied!" : "Copy Invite Link"}
+              </button>
             </div>
           </div>
         </main>
-
-
-        <footer className="relative z-10 py-6 text-center text-xs text-zinc-400">
-          © 2026 Kasapp. Built for the Kaspa Ecosystem.
-        </footer>
       </div>
     );
   }
@@ -399,467 +246,399 @@ export default function KasappLanding() {
   // STATE A: MAIN LANDING PAGE VIEW (PRE-PURCHASE)
   // ==========================================================================
   return (
-    <div className="min-h-screen bg-[#F6F8F6] text-zinc-800 font-sans relative overflow-hidden selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-[#FBFBFB] text-[#111827] font-sans antialiased selection:bg-[#70C7BA] selection:text-white">
       
       {/* NAVIGATION BAR */}
-      <header className="sticky top-0 z-50 bg-[#F6F8F6]/90 backdrop-blur-md border-b border-zinc-200/80">
-        <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <svg width="38" height="38" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-              <path d="M50 10C27.9086 10 10 26.1177 10 46C10 54.852 13.5186 62.9431 19.3897 69.1026L14 88L33.7226 82.2661C38.6816 84.6687 44.1834 86 50 86C72.0914 86 90 69.8823 90 50C90 30.1177 72.0914 10 50 10Z" fill="#16A344" />
-              <path d="M36 32V68M36 50L58 32M36 50L58 68M46 50H66" stroke="white" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-
-
-            <div className="flex flex-col leading-none">
-              <span className="text-2xl font-bold tracking-tight text-[#0F172A]">Kasapp</span>
-              <span className="text-[9px] font-semibold text-[#16A344] tracking-wider uppercase mt-1">
-                Money. Fast. Simple. Private.
-              </span>
-            </div>
+      <header className="sticky top-0 z-40 bg-[#FBFBFB]/90 backdrop-blur-md border-b border-gray-100/80">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#22C55E] flex items-center justify-center text-white font-black text-lg shadow-sm">K</div>
+            <span className="text-xl font-bold tracking-tight text-gray-900">KASAPP</span>
           </div>
 
 
-          <div className="hidden md:flex items-center gap-7 text-sm font-medium text-zinc-600">
-            <a href="#home" className="text-emerald-600 font-semibold border-b-2 border-emerald-500 pb-0.5">Home</a>
-            <a href="#utilities" className="hover:text-emerald-600 transition-colors">Utilities</a>
-            <a href="#features" className="hover:text-emerald-600 transition-colors">Why Kasapp</a>
-            <a href="https://kaspa.university" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 transition-colors flex items-center gap-1">
-              Kaspa University <ExternalLink size={12} />
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+            <a href="#features" className="hover:text-gray-900 transition-colors">Features</a>
+            <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How it Works</a>
+            <a href="#security" className="hover:text-gray-900 transition-colors">Security</a>
+            <a href="https://kaspa.university" target="_blank" rel="noreferrer" className="text-[#16A34A] hover:text-[#15803D] flex items-center gap-1 font-semibold transition-colors">
+              Kaspa University <ExternalLink size={13} />
             </a>
-          </div>
+          </nav>
 
 
           <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={() => setShowBuyModal(true)}
-              className="bg-emerald-600 text-white px-5 py-2.5 rounded-full font-bold hover:bg-emerald-700 transition text-xs flex items-center gap-2 shadow-sm"
-            >
-              <ShoppingBag size={15} /> Buy Kaspa Voucher
+            <button onClick={() => setShowBuyModal(true)} className="text-sm font-semibold text-gray-700 hover:text-gray-900 px-3.5 py-2.5 rounded-full hover:bg-gray-100 transition-all">
+              Buy Voucher
+            </button>
+            <button onClick={openWhatsAppDirect} className="bg-black hover:bg-gray-800 text-white text-sm font-medium px-5 py-2.5 rounded-full flex items-center gap-2 transition-all shadow-sm">
+              <Send size={14} /> Start on WhatsApp
             </button>
           </div>
 
 
-          <button className="md:hidden text-zinc-700" onClick={() => setMenuOpen(!menuOpen)}>
+          <button className="md:hidden text-gray-900" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-        </nav>
+        </div>
 
 
+        {/* Mobile Menu */}
         {menuOpen && (
-          <div className="md:hidden bg-white border-b border-zinc-200 px-6 py-4 flex flex-col gap-3 shadow-lg">
-            <a href="#home" onClick={() => setMenuOpen(false)} className="py-2 text-zinc-800 font-medium">Home</a>
-            <a href="#utilities" onClick={() => setMenuOpen(false)} className="py-2 text-zinc-600">Utilities</a>
-            <a href="#features" onClick={() => setMenuOpen(false)} className="py-2 text-zinc-600">Why Kasapp</a>
-            <a href="https://kaspa.university" target="_blank" rel="noopener noreferrer" className="py-2 text-emerald-600 font-medium flex items-center gap-2">
-              <GraduationCap size={16} /> Kaspa University
+          <div className="md:hidden bg-white border-b border-gray-200 px-6 py-4 flex flex-col gap-4 shadow-lg absolute w-full left-0">
+            <a href="#features" onClick={() => setMenuOpen(false)} className="text-gray-800 font-medium">Features</a>
+            <a href="#how-it-works" onClick={() => setMenuOpen(false)} className="text-gray-800 font-medium">How it Works</a>
+            <a href="#security" onClick={() => setMenuOpen(false)} className="text-gray-800 font-medium">Security</a>
+            <a href="https://kaspa.university" target="_blank" rel="noreferrer" className="text-[#16A34A] font-medium flex items-center gap-1">
+              Kaspa University <ExternalLink size={14} />
             </a>
-            <button
-              onClick={() => { setMenuOpen(false); setShowBuyModal(true); }}
-              className="py-3 bg-emerald-600 text-white font-bold rounded-xl text-center flex items-center justify-center gap-2"
-            >
-              <ShoppingBag size={16} /> Buy Kaspa Voucher
+            <hr className="border-gray-100" />
+            <button onClick={() => { setMenuOpen(false); setShowBuyModal(true); }} className="py-2.5 text-gray-900 font-semibold border border-gray-300 rounded-xl">
+              Buy Kaspa Voucher
+            </button>
+            <button onClick={openWhatsAppDirect} className="py-2.5 bg-black text-white font-semibold rounded-xl flex items-center justify-center gap-2">
+               Start on WhatsApp
             </button>
           </div>
         )}
       </header>
 
 
-      {/* HERO SECTION */}
-      <section id="home" className="relative pt-12 pb-20 md:pt-16 md:pb-28">
-        <div className="absolute inset-0 z-0 opacity-80">
+      {/* HERO SECTION WITH BLOCKDAG BACKGROUND */}
+      <section className="relative w-full overflow-hidden">
+        {/* Layer 0: Simulation */}
+        <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
           <BlockDAGWatermark />
         </div>
 
 
-        <div className="container mx-auto px-6 relative z-10 max-w-7xl">
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
+        {/* Layer 1: Content */}
+        <div className="relative z-10 max-w-6xl mx-auto px-6 pt-12 pb-20 lg:pt-16 lg:pb-32">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
-            {/* LEFT COLUMN: HERO ACTION */}
-            <div className="lg:col-span-6 flex flex-col gap-6 text-left">
-              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3.5 py-1.5 rounded-full border border-emerald-200 text-xs font-semibold w-fit">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                WhatsApp Utility Layer on Kaspa
-                <ArrowRight size={12} />
+            {/* Left Hero Content */}
+            <div className="lg:col-span-6 space-y-7">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D9FDD3] border border-[#25D366]/30 text-[#075E54] text-xs font-semibold uppercase tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse"></span>
+                Kaspa Payments. Inside WhatsApp.
               </div>
 
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-zinc-900 leading-[1.15]">
-                Pay Bills, Buy Data & Send Money. <br />
-                <span className="text-emerald-600">Right on WhatsApp.</span>
+              <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-950 tracking-tight leading-[1.08]">
+                Your money, <br />
+                where you <br />
+                already <span className="text-[#22C55E]">chat.</span>
               </h1>
 
 
-              <p className="text-lg text-zinc-600 leading-relaxed max-w-xl">
-                Kasapp turns WhatsApp into your financial hub powered by Kaspa (KAS). Recharge airtime, buy data bundles, pay electricity bills, and send instant peer-to-peer payments using simple chat commands.
+              <p className="text-lg text-gray-600 font-normal max-w-md leading-relaxed">
+                Send KAS. Buy airtime. Pay bills. <br />
+                All directly from WhatsApp.
               </p>
 
 
-              {/* SINGLE FOCUS CTA SECTION */}
-              <div className="flex flex-col gap-3 pt-2 max-w-md">
-                <button
-                  onClick={() => setShowBuyModal(true)}
-                  className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all transform hover:scale-[1.01]"
-                >
-                  <ShoppingBag size={18} /> Buy Kaspa Voucher
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <button onClick={openWhatsAppDirect} className="bg-black hover:bg-gray-800 text-white font-semibold px-7 py-3.5 rounded-xl flex items-center gap-2.5 shadow-md transition-all">
+                  <Send size={18} /> Start on WhatsApp
                 </button>
+                <button onClick={() => setShowBuyModal(true)} className="px-6 py-3.5 rounded-xl border border-gray-300 font-semibold text-gray-800 bg-white/80 backdrop-blur-sm hover:bg-gray-100 transition-all flex items-center gap-1.5">
+                  Buy Voucher <ArrowRight size={16} />
+                </button>
+              </div>
 
 
-                <p className="text-center text-xs text-zinc-500">
-                  Already have a voucher or account?{' '}
+              {/* Waitlist Integration preserved from old code */}
+              <div className="mt-4 pt-6 border-t border-gray-200/80 max-w-md">
+                <p className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Join early access testing</p>
+                <form onSubmit={joinWaitlist} className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="tel"
+                    required
+                    placeholder="WhatsApp number..."
+                    className="flex-1 bg-white border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-gray-500 shadow-sm"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
                   <button
-                    onClick={openWhatsAppDirect}
-                    className="text-emerald-600 font-bold underline hover:text-emerald-700"
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className="bg-gray-100 text-gray-900 border border-gray-300 px-5 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors text-sm disabled:opacity-50"
                   >
-                    Chat on WhatsApp
+                    {status === 'loading' ? 'Joining...' : 'Waitlist'}
                   </button>
-                </p>
-              </div>
-
-
-              {/* Waitlist Form */}
-              <div className="mt-4 pt-6 border-t border-zinc-200/80">
-                <p className="text-xs font-bold text-zinc-700 mb-2">Want early access for campus testing?</p>
-                <form id="waitlist" onSubmit={joinWaitlist} className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1 bg-white p-1.5 rounded-2xl border border-zinc-300 shadow-sm flex items-center">
-                    <input
-                      type="tel"
-                      required
-                      placeholder="WhatsApp number..."
-                      className="w-full bg-transparent px-4 py-2 outline-none text-zinc-800 placeholder:text-zinc-400 text-xs font-medium"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                    />
-                    <button
-                      type="submit"
-                      disabled={status === 'loading'}
-                      className="bg-zinc-900 text-white px-4 py-2 rounded-xl font-semibold hover:bg-zinc-800 transition-colors text-xs whitespace-nowrap disabled:opacity-50"
-                    >
-                      {status === 'loading' ? 'Joining...' : 'Join Waitlist'}
-                    </button>
-                  </div>
                 </form>
-              </div>
-
-
-              {status === 'error' && (
-                <p className="text-xs text-red-600 font-medium bg-red-50 p-2.5 rounded-xl border border-red-200">
-                  {number ? `You are already registered at position #${number}` : 'Something went wrong. Please try again.'}
-                </p>
-              )}
-
-
-              {/* Launch Badge */}
-              <div className="bg-white/80 backdrop-blur-sm border border-zinc-200/80 p-4 rounded-2xl flex items-center justify-between max-w-sm shadow-sm mt-2">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">🇳🇬</span>
-                  <div>
-                    <h4 className="font-bold text-zinc-900 text-sm">Launching in Nigeria First</h4>
-                    <p className="text-xs text-zinc-500">Airtime, Data, Electricity & P2P</p>
-                  </div>
-                </div>
-                <span className="text-xl">⚡</span>
+                {status === 'error' && (
+                  <p className="text-xs text-red-600 font-medium mt-2">
+                    {number ? `You are already registered at position #${number}` : 'Something went wrong. Please try again.'}
+                  </p>
+                )}
               </div>
             </div>
 
 
-            {/* RIGHT COLUMN: Interactive WhatsApp Phone Mockup */}
-            <div className="lg:col-span-6 grid sm:grid-cols-12 gap-6 items-center">
-              <div className="sm:col-span-7 flex justify-center">
-                <div className="w-[300px] bg-zinc-900 rounded-[40px] p-3 shadow-2xl border-4 border-zinc-800 flex flex-col">
-                  {/* WhatsApp Header */}
-                  <div className="bg-[#075E54] text-white p-3 rounded-t-[30px] flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-emerald-400 flex items-center justify-center text-[10px] font-bold text-zinc-900">
-                        ⚡
-                      </div>
+            {/* Right Hero: WhatsApp CSS Mockup (Matching the Image) */}
+            <div className="lg:col-span-6 flex justify-center relative pointer-events-none">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full border border-[#22C55E]/10 -z-10"></div>
+              
+              <div className="w-[320px] sm:w-[340px] bg-white rounded-[3rem] p-3.5 shadow-2xl border-4 border-gray-900 ring-1 ring-gray-950/5 relative z-20">
+                <div className="bg-[#EFEAE2] rounded-[2.3rem] overflow-hidden flex flex-col h-[520px] border border-gray-200/50">
+                  <div className="bg-[#075E54] text-white px-4 py-3.5 flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#22C55E] flex items-center justify-center font-bold text-xs">K</div>
                       <div>
-                        <p className="font-bold text-xs leading-none">Kasapp Wallet</p>
-                        <p className="text-[9px] text-emerald-200 leading-none mt-0.5">online • bot</p>
+                        <h4 className="text-sm font-semibold leading-none">Kasapp</h4>
+                        <span className="text-[10px] text-emerald-200">online</span>
+                      </div>
+                    </div>
+                    <div className="text-white/80 text-xs">⋮</div>
+                  </div>
+
+
+                  <div className="p-4 flex-1 space-y-3.5 overflow-y-auto font-sans text-xs">
+                    <div className="flex justify-end">
+                      <div className="bg-[#D9FDD3] text-gray-900 p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[80%]">
+                        <p className="font-medium">Send 50 KAS to John</p>
+                        <span className="text-[9px] text-gray-500 block text-right mt-1">9:41 AM ✓✓</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-start">
+                      <div className="bg-white text-gray-900 p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] border border-gray-100">
+                        <p className="font-semibold text-[#075E54] flex items-center gap-1 mb-1">
+                          <span className="w-3 h-3 rounded-full bg-[#25D366] inline-block"></span> Kasapp
+                        </p>
+                        <p className="text-gray-600">You're sending 50 KAS to John</p>
+                        <span className="text-[9px] text-gray-400 block text-right mt-1">9:41 AM</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-start">
+                      <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[88%] border border-[#25D366]/30">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <CheckCircle2 size={16} className="text-[#25D366]" />
+                          <span className="font-bold text-gray-900 text-[11px]">50 KAS sent to John</span>
+                        </div>
+                        <p className="text-[10px] text-gray-500">Transaction confirmed</p>
+                        <div className="mt-2 pt-2 border-t border-gray-100 text-right text-[9px] text-gray-400">9:41 AM</div>
                       </div>
                     </div>
                   </div>
 
 
-                  {/* Chat Message Stream */}
-                  <div className="bg-[#E5DDD5] p-3 flex flex-col gap-2.5 h-[360px] overflow-y-auto text-xs">
-                    {simulatedMessages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`max-w-[88%] rounded-lg p-2.5 text-[11px] shadow-sm ${
-                          msg.sender === 'user'
-                            ? 'bg-white text-zinc-800 self-end rounded-tr-none font-mono text-[10px]'
-                            : 'bg-[#DCF8C6] text-zinc-900 self-start rounded-tl-none border-l-2 border-emerald-600'
-                        }`}
-                      >
-                        <p className="whitespace-pre-line leading-relaxed">{msg.text}</p>
-                        <span className="block text-[7px] text-zinc-400 text-right mt-1">
-                          {msg.time}
-                        </span>
-                      </div>
-                    ))}
-
-
-                    {isTyping && (
-                      <div className="bg-white p-2 rounded-lg self-start text-[10px] italic text-zinc-500 shadow-sm">
-                        Kasapp is typing...
-                      </div>
-                    )}
-                  </div>
-
-
-                  {/* Interactive Trigger Control */}
-                  <div className="p-2.5 bg-zinc-800 rounded-b-[30px] border-t border-zinc-700">
-                    <button
-                      onClick={runSimulatedBillPay}
-                      disabled={simulatedMessages.length > 2}
-                      className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-700 text-white text-[10px] font-semibold rounded-xl transition shadow-sm"
-                    >
-                      {simulatedMessages.length > 2 ? 'Simulation Complete ✨' : 'Simulate ₦1,000 Airtime Purchase ▶'}
-                    </button>
+                  <div className="p-2.5 bg-[#F0F2F5] flex items-center gap-2 border-t border-gray-200">
+                    <div className="flex-1 bg-white rounded-full px-3.5 py-1.5 text-[11px] text-gray-400 flex items-center justify-between shadow-inner">
+                      <span>Message</span>
+                      <div className="flex items-center gap-2"><Paperclip size={13} /><Camera size={13} /></div>
+                    </div>
+                    <div className="w-7 h-7 rounded-full bg-[#00A884] flex items-center justify-center text-white"><Mic size={13} /></div>
                   </div>
                 </div>
               </div>
-
-
-              {/* Utility Highlight Column */}
-              <div className="sm:col-span-5 flex flex-col gap-3">
-                {[
-                  { icon: Smartphone, title: 'Airtime & Data', desc: 'MTN, Airtel, Glo, 9mobile' },
-                  { icon: Lightbulb, title: 'Electricity Bills', desc: 'IKEDC, EKEDC, AEDC & more' },
-                  { icon: Tv, title: 'Cable TV Subscriptions', desc: 'DSTV, GOTV, Startimes' },
-                  { icon: Zap, title: 'P2P Kaspa Transfer', desc: 'Send KAS instantly by phone number' },
-                ].map((item, idx) => (
-                  <div key={idx} className="bg-white p-3 rounded-2xl border border-zinc-200/80 shadow-sm flex items-start gap-3">
-                    <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 shrink-0">
-                      <item.icon size={16} />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-zinc-900 text-xs">{item.title}</h4>
-                      <p className="text-[10px] text-zinc-500 leading-tight mt-0.5">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-
-          </div>
-        </div>
-      </section>
-
-
-      {/* CORE UTILITIES SHOWCASE SECTION */}
-      <section id="utilities" className="py-16 bg-white border-t border-zinc-200">
-        <div className="container mx-auto px-6 max-w-6xl">
-          <div className="text-center mb-12">
-            <span className="text-emerald-600 font-semibold text-xs uppercase tracking-widest block">Everyday Utility</span>
-            <h2 className="text-3xl font-extrabold text-zinc-900 mt-1">Everything You Can Do on Kasapp</h2>
-            <p className="text-zinc-500 text-sm mt-2 max-w-xl mx-auto">
-              No complex DeFi menus or cumbersome exchange apps. Just message Kasapp on WhatsApp to settle everyday bills.
-            </p>
-          </div>
-
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-[#F8FAF8] p-6 rounded-2xl border border-zinc-200/80 flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                <Smartphone size={20} />
-              </div>
-              <h3 className="font-bold text-zinc-900 text-base">Airtime & Data</h3>
-              <p className="text-zinc-600 text-xs leading-relaxed">
-                Top up your phone or send mobile data directly to family members on any major Nigerian network.
-              </p>
-            </div>
-
-
-            <div className="bg-[#F8FAF8] p-6 rounded-2xl border border-zinc-200/80 flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                <Lightbulb size={20} />
-              </div>
-              <h3 className="font-bold text-zinc-900 text-base">Power & Electricity</h3>
-              <p className="text-zinc-600 text-xs leading-relaxed">
-                Generate prepaid electricity meter tokens instantly without visiting a vendor or opening banking apps.
-              </p>
-            </div>
-
-
-            <div className="bg-[#F8FAF8] p-6 rounded-2xl border border-zinc-200/80 flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                <Tv size={20} />
-              </div>
-              <h3 className="font-bold text-zinc-900 text-base">Cable TV</h3>
-              <p className="text-zinc-600 text-xs leading-relaxed">
-                Renew DSTV, GOTV, and Startimes packages in seconds with simple WhatsApp chat commands.
-              </p>
-            </div>
-
-
-            <div className="bg-[#F8FAF8] p-6 rounded-2xl border border-zinc-200/80 flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                <Zap size={20} />
-              </div>
-              <h3 className="font-bold text-zinc-900 text-base">Instant KAS Transfers</h3>
-              <p className="text-zinc-600 text-xs leading-relaxed">
-                Send KAS to any WhatsApp contact or phone number with 1-second BlockDAG settlement speeds.
-              </p>
             </div>
           </div>
         </div>
       </section>
 
 
-      {/* WHY KASAPP SECTION */}
-      <section id="features" className="py-16 bg-[#F6F8F6] border-t border-zinc-200">
-        <div className="container mx-auto px-6 max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-zinc-900">Why Kasapp?</h2>
-            <p className="text-zinc-500 text-sm mt-2">Built for everyday people. Designed for Africa. Powered by Kaspa.</p>
+      {/* FEATURES GRID */}
+      <section id="features" className="max-w-6xl mx-auto px-6 py-20 border-t border-gray-100 relative z-10 bg-[#FBFBFB]">
+        <div className="mb-12">
+          <span className="text-xs font-bold tracking-wider text-[#22C55E] uppercase">One chat. Real utility.</span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-950 mt-2">Everything you need, <br /> without leaving WhatsApp.</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white p-6 rounded-2xl border border-gray-200/70 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-[#D9FDD3] text-[#075E54] flex items-center justify-center mb-5"><Send size={18} /></div>
+            <h3 className="text-base font-bold text-gray-900 mb-2">Send KAS</h3>
+            <p className="text-xs text-gray-500 leading-relaxed">Send Kaspa to anyone instantly. Kasapp users or external wallets.</p>
           </div>
-
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: MessageSquare, title: 'Simple as WhatsApp', desc: 'No complex apps. Just chat and transact using easy commands.' },
-              { icon: Zap, title: 'Blazing Fast', desc: 'Kaspa is one of the fastest blockchains in the world. Transactions in seconds.' },
-              { icon: Clock, title: 'Low Cost', desc: 'Tiny fees mean you keep more of your money. Perfect for everyday use.' },
-              { icon: Shield, title: 'Secure & Private', desc: "Built with security and privacy in mind. You're in control of your funds." },
-            ].map((card, idx) => (
-              <div key={idx} className="bg-white p-6 rounded-2xl border border-zinc-200/80 flex flex-col gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                  <card.icon size={20} />
-                </div>
-                <h3 className="font-bold text-zinc-900 text-base">{card.title}</h3>
-                <p className="text-zinc-600 text-xs leading-relaxed">{card.desc}</p>
-              </div>
-            ))}
+          <div className="bg-white p-6 rounded-2xl border border-gray-200/70 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-5"><PhoneCall size={18} /></div>
+            <h3 className="text-base font-bold text-gray-900 mb-2">Buy Airtime & Data</h3>
+            <p className="text-xs text-gray-500 leading-relaxed">MTN, Airtel, Glo, 9mobile. Pay for airtime and data with KAS.</p>
+          </div>
+          <div className="bg-white p-6 rounded-2xl border border-gray-200/70 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5"><Zap size={18} /></div>
+            <h3 className="text-base font-bold text-gray-900 mb-2">Pay Bills</h3>
+            <p className="text-xs text-gray-500 leading-relaxed">Electricity, cable TV, and other services. Instant payment, zero stress.</p>
+          </div>
+          <div className="bg-white p-6 rounded-2xl border border-gray-200/70 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-5"><ArrowLeftRight size={18} /></div>
+            <h3 className="text-base font-bold text-gray-900 mb-2">Fiat ↔ KAS</h3>
+            <p className="text-xs text-gray-500 leading-relaxed">Move between fiat and KAS using familiar Nigerian payment rails.</p>
           </div>
         </div>
       </section>
 
 
-      {/* ONLINE BUY VOUCHER MODAL */}
+      {/* HOW IT WORKS */}
+      <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-20 border-t border-gray-100 bg-[#FBFBFB]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          <div className="lg:col-span-7 space-y-8">
+            <div>
+              <span className="text-xs font-bold tracking-wider text-[#22C55E] uppercase">How it works</span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-950 mt-1">Simple as 1, 2, 3.</h2>
+            </div>
+            <div className="space-y-8 pt-4">
+              <div className="flex items-start gap-5">
+                <div className="w-8 h-8 rounded-full bg-[#D9FDD3] text-[#075E54] font-bold text-xs flex items-center justify-center shrink-0">01</div>
+                <div><h4 className="text-sm font-bold text-gray-900">Open WhatsApp</h4><p className="text-xs text-gray-500 mt-1">No new app download. No complexity.</p></div>
+              </div>
+              <div className="flex items-start gap-5">
+                <div className="w-8 h-8 rounded-full bg-[#D9FDD3] text-[#075E54] font-bold text-xs flex items-center justify-center shrink-0">02</div>
+                <div><h4 className="text-sm font-bold text-gray-900">Tell Kasapp what you need</h4><p className="text-xs text-gray-500 mt-1">Send KAS, buy airtime, pay a bill and more.</p></div>
+              </div>
+              <div className="flex items-start gap-5">
+                <div className="w-8 h-8 rounded-full bg-[#D9FDD3] text-[#075E54] font-bold text-xs flex items-center justify-center shrink-0">03</div>
+                <div><h4 className="text-sm font-bold text-gray-900">Confirm</h4><p className="text-xs text-gray-500 mt-1">Kasapp handles the rest.</p></div>
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-5 bg-white p-8 sm:p-10 rounded-3xl border border-gray-200 shadow-sm text-center lg:text-left">
+            <h3 className="text-3xl font-extrabold text-gray-900 leading-tight">You don't need <br className="hidden lg:block"/> to know how <br className="hidden lg:block"/> it works.</h3>
+            <p className="text-2xl font-bold text-[#22C55E] mt-4">That's the point.</p>
+            <div className="mt-8 border-b-2 border-dotted border-gray-300 w-24 mx-auto lg:mx-0"></div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* SECURITY SECTION */}
+      <section id="security" className="max-w-6xl mx-auto px-6 py-20 border-t border-gray-100 bg-[#FBFBFB]">
+        <div className="bg-white p-8 sm:p-12 rounded-3xl border border-gray-200 shadow-sm">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-5 space-y-3">
+              <span className="text-xs font-bold tracking-wider text-[#22C55E] uppercase">Your Keys. Your KAS.</span>
+              <h2 className="text-3xl font-extrabold text-gray-950">Non-custodial by design.</h2>
+              <p className="text-xs text-gray-500 leading-relaxed">Kasapp doesn't hold your funds. You're in control, always.</p>
+            </div>
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                <Lock size={18} className="text-[#22C55E] mb-3" />
+                <h4 className="text-sm font-bold text-gray-900">Non-custodial</h4>
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">Kasapp never holds your funds.</p>
+              </div>
+              <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                <Key size={18} className="text-[#22C55E] mb-3" />
+                <h4 className="text-sm font-bold text-gray-900">Your recovery phrase</h4>
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">Back up your wallet and restore it anywhere.</p>
+              </div>
+              <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                <ShieldCheck size={18} className="text-[#22C55E] mb-3" />
+                <h4 className="text-sm font-bold text-gray-900">Protected actions</h4>
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">PIN verification for large transfers.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* BOTTOM CTA BANNER */}
+      <section className="max-w-6xl mx-auto px-6 pb-20 bg-[#FBFBFB]">
+        <div className="bg-black text-white p-8 sm:p-12 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center font-black text-2xl text-[#22C55E]">₭</div>
+            <div>
+              <h3 className="text-xl sm:text-2xl font-bold">Kaspa was built for fast money.</h3>
+              <p className="text-xl sm:text-2xl font-bold text-[#22C55E]">Let's make it useful.</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <button onClick={openWhatsAppDirect} className="w-full sm:w-auto bg-[#22C55E] hover:bg-[#16A34A] text-black font-bold px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors">
+              <Send size={16} /> Start using Kasapp
+            </button>
+          </div>
+        </div>
+      </section>
+
+
+      {/* FOOTER */}
+      <footer className="border-t border-gray-200 py-10 bg-white">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-gray-900 text-sm">KASAPP</span>
+            <span>© 2026 Kasapp Technologies Ltd.</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <a href="https://kaspa.university" target="_blank" rel="noreferrer" className="hover:text-gray-900 font-medium">Docs</a>
+            <a href={WHATSAPP_BOT_URL} target="_blank" rel="noreferrer" className="hover:text-gray-900 font-medium">Community</a>
+            <a href="#security" className="hover:text-gray-900 font-medium">Privacy</a>
+          </div>
+        </div>
+      </footer>
+
+
+      {/* ONLINE BUY VOUCHER MODAL (PAYSTACK ONLY) */}
       {showBuyModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
-            <button
-              onClick={() => setShowBuyModal(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-700 p-1 transition-colors"
-            >
+          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <button onClick={() => setShowBuyModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 p-1 transition-colors">
               <X size={20} />
             </button>
-
-
-            <div className="flex items-center gap-2 mb-1">
-              <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-gray-100 text-gray-900 rounded-xl">
                 <ShoppingBag size={20} />
               </div>
-              <h3 className="text-xl font-extrabold text-zinc-900">Purchase Voucher</h3>
+              <h3 className="text-xl font-bold text-gray-900">Purchase Voucher</h3>
             </div>
-            <p className="text-xs text-zinc-500 mb-5">Pay via Card or Bank Transfer to generate a redeemable Kaspa voucher code.</p>
+            <p className="text-xs text-gray-500 mb-5">Pay via Card or Bank Transfer to generate a redeemable Kaspa voucher code.</p>
 
 
-            <form onSubmit={handlePurchaseVoucher} className="flex flex-col gap-4">
-              
-              {/* Payment Gateway Selection */}
-              <div>
-                <label className="text-[11px] font-bold text-zinc-700 block mb-2 uppercase tracking-wider">1. Select Payment Method</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentGateway('paystack')}
-                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
-                      paymentGateway === 'paystack' 
-                        ? 'bg-emerald-50 border-emerald-500 text-emerald-700' 
-                        : 'bg-zinc-50 border-zinc-200 text-zinc-500 hover:bg-zinc-100'
-                    }`}
-                  >
-                    <CreditCard size={16} /> Paystack
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentGateway('flutterwave')}
-                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
-                      paymentGateway === 'flutterwave' 
-                        ? 'bg-emerald-50 border-emerald-500 text-emerald-700' 
-                        : 'bg-zinc-50 border-zinc-200 text-zinc-500 hover:bg-zinc-100'
-                    }`}
-                  >
-                    🌊 Flutterwave
-                  </button>
-                </div>
-              </div>
-
-
-              <hr className="border-zinc-100" />
-
-
+            <form onSubmit={handlePurchaseVoucher} className="flex flex-col gap-5">
               {/* Amount Selection */}
               <div>
-                <label className="text-[11px] font-bold text-zinc-700 block mb-2 uppercase tracking-wider">2. Select Amount (NGN)</label>
+                <label className="text-xs font-bold text-gray-700 block mb-2">Amount (NGN)</label>
                 <div className="flex gap-2 mb-3">
                   {[3000, 5000, 10000].map(preset => (
                     <button
                       key={preset}
                       type="button"
                       onClick={() => { setBuyAmount(preset); setAmountError(''); }}
-                      className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition ${
-                        buyAmount === preset 
-                          ? 'bg-zinc-900 border-zinc-900 text-white' 
-                          : 'bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-100'
+                      className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition-colors ${
+                        buyAmount === preset ? 'bg-black border-black text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
                       }`}
                     >
                       ₦{preset.toLocaleString()}
                     </button>
                   ))}
                 </div>
-                
                 <input
                   type="number"
-                  placeholder="Or enter custom amount (Min ₦3,000)"
+                  placeholder="Custom amount (Min ₦3,000)"
                   value={buyAmount}
                   onChange={(e) => {
                     const val = e.target.value ? parseInt(e.target.value, 10) : '';
                     setBuyAmount(val);
-                    if (val !== '' && val < 3000) {
-                      setAmountError('The minimum voucher amount is ₦3,000.');
-                    } else {
-                      setAmountError('');
-                    }
+                    if (val !== '' && val < 3000) setAmountError('Minimum amount is ₦3,000.');
+                    else setAmountError('');
                   }}
-                  className={`w-full bg-zinc-50 border ${
-                    amountError ? 'border-red-400 focus:border-red-500 focus:bg-white' : 'border-zinc-300 focus:border-emerald-500 focus:bg-white'
-                  } rounded-xl px-3.5 py-2.5 text-xs outline-none transition font-medium`}
+                  className={`w-full bg-gray-50 border ${amountError ? 'border-red-400 focus:border-red-500' : 'border-gray-300 focus:border-gray-500'} rounded-xl px-4 py-3 text-sm outline-none transition-colors`}
                 />
                 {amountError && <p className="text-[10px] text-red-500 mt-1.5 font-bold">{amountError}</p>}
               </div>
 
 
-              <hr className="border-zinc-100" />
-
-
               {/* User Details */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-bold text-zinc-700 block mb-1">WhatsApp Number</label>
+                  <label className="text-xs font-bold text-gray-700 block mb-2">WhatsApp Number</label>
                   <input
                     type="tel"
                     required
-                    placeholder="e.g. 08012345678"
+                    placeholder="08012345678"
                     value={buyPhone}
                     onChange={(e) => setBuyPhone(e.target.value)}
-                    className="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 focus:bg-white transition"
+                    className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-gray-500 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-zinc-700 block mb-1">Email Address</label>
+                  <label className="text-xs font-bold text-gray-700 block mb-2">Email Address</label>
                   <input
                     type="email"
                     required
                     placeholder="name@example.com"
                     value={buyEmail}
                     onChange={(e) => setBuyEmail(e.target.value)}
-                    className="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 focus:bg-white transition"
+                    className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-gray-500 transition-colors"
                   />
                 </div>
               </div>
@@ -869,23 +648,14 @@ export default function KasappLanding() {
               <button
                 type="submit"
                 disabled={isInitializing || (buyAmount !== '' && buyAmount < 3000)}
-                className="w-full mt-2 py-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2"
+                className="w-full mt-2 py-4 bg-[#22C55E] hover:bg-[#16A34A] disabled:opacity-50 text-black rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2"
               >
-                {isInitializing 
-                  ? 'Connecting to Gateway...' 
-                  : `Pay ₦${(buyAmount || 0).toLocaleString()} with ${paymentGateway === 'paystack' ? 'Paystack' : 'Flutterwave'}`
-                }
+                {isInitializing ? 'Connecting...' : `Pay ₦${(buyAmount || 0).toLocaleString()} with Paystack`}
               </button>
             </form>
           </div>
         </div>
       )}
-
-
-      {/* FOOTER */}
-      <footer className="py-6 bg-white border-t border-zinc-200 text-center text-zinc-500 text-xs">
-        <p>© 2026 Kasapp. Built for the Kaspa Ecosystem.</p>
-      </footer>
     </div>
   );
 }
