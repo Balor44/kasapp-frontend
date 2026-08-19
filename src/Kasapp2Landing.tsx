@@ -5,6 +5,7 @@ import {
   Mic, Paperclip, CheckCircle2, ArrowLeft, ShoppingBag
 } from 'lucide-react';
 import { BlockDAGWatermark } from './components/BlockDAGAnimation';
+import kasappLogo from './kasapp-logo.jpg';
 
 
 interface Message {
@@ -204,7 +205,7 @@ export default function KasappLanding() {
         <div className="absolute inset-0 z-0 opacity-40"><BlockDAGWatermark /></div>
         <header className="relative z-10 container mx-auto px-6 py-6 flex items-center justify-between max-w-6xl">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#22C55E] flex items-center justify-center text-white font-black text-lg">K</div>
+            <img src={kasappLogo} alt="Kasapp Logo" className="w-9 h-9 rounded-xl object-cover mix-blend-multiply" />
             <span className="text-xl font-bold tracking-tight text-gray-900">KASAPP</span>
           </div>
           <button onClick={() => { setStatus('idle'); setPhone(''); }} className="text-sm font-semibold text-gray-500 hover:text-gray-900">
@@ -253,7 +254,7 @@ export default function KasappLanding() {
       <header className="sticky top-0 z-40 bg-[#FBFBFB]/90 backdrop-blur-md border-b border-gray-100/80">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#22C55E] flex items-center justify-center text-white font-black text-lg shadow-sm">K</div>
+            <img src={kasappLogo} alt="Kasapp Logo" className="w-9 h-9 rounded-xl object-cover mix-blend-multiply" />
             <span className="text-xl font-bold tracking-tight text-gray-900">KASAPP</span>
           </div>
 
@@ -385,7 +386,7 @@ export default function KasappLanding() {
                 <div className="bg-[#EFEAE2] rounded-[2.3rem] overflow-hidden flex flex-col h-[520px] border border-gray-200/50">
                   <div className="bg-[#075E54] text-white px-4 py-3.5 flex items-center justify-between shadow-sm">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#22C55E] flex items-center justify-center font-bold text-xs">K</div>
+                      <img src={kasappLogo} alt="Kasapp Logo" className="w-9 h-9 rounded-xl object-cover mix-blend-multiply" />
                       <div>
                         <h4 className="text-sm font-semibold leading-none">Kasapp</h4>
                         <span className="text-[10px] text-emerald-200">online</span>
@@ -476,7 +477,7 @@ export default function KasappLanding() {
           <div className="lg:col-span-7 space-y-8">
             <div>
               <span className="text-xs font-bold tracking-wider text-[#22C55E] uppercase">How it works</span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-950 mt-1">Simple as 1, 2, 3.</h2>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-950 mt-1">Crypto without the learning curve.</h2>
             </div>
             <div className="space-y-8 pt-4">
               <div className="flex items-start gap-5">
@@ -537,7 +538,7 @@ export default function KasappLanding() {
       <section className="max-w-6xl mx-auto px-6 pb-20 bg-[#FBFBFB]">
         <div className="bg-black text-white p-8 sm:p-12 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center font-black text-2xl text-[#22C55E]">₭</div>
+            <img src={kasappLogo} alt="Kasapp Logo" className="w-9 h-9 rounded-xl object-cover mix-blend-multiply" />
             <div>
               <h3 className="text-xl sm:text-2xl font-bold">Kaspa was built for fast money.</h3>
               <p className="text-xl sm:text-2xl font-bold text-[#22C55E]">Let's make it useful.</p>
@@ -576,9 +577,7 @@ export default function KasappLanding() {
               <X size={20} />
             </button>
             <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-gray-100 text-gray-900 rounded-xl">
-                <ShoppingBag size={20} />
-              </div>
+              <img src={kasappLogo} alt="Kasapp Logo" className="w-9 h-9 rounded-xl object-cover mix-blend-multiply" />
               <h3 className="text-xl font-bold text-gray-900">Purchase Voucher</h3>
             </div>
             <p className="text-xs text-gray-500 mb-5">Pay via Card or Bank Transfer to generate a redeemable Kaspa voucher code.</p>
