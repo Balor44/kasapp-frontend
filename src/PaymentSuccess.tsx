@@ -10,6 +10,7 @@ const API_BASE = import.meta.env.VITE_API_URL || 'https://kasapp2-production.up.
 export default function PaymentSuccess() {
   const location = useLocation();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [debugError, setDebugError] = useState<string>('');
   const [voucher, setVoucher] = useState<{
     code: string;
     amountKas: number;
@@ -19,15 +20,12 @@ export default function PaymentSuccess() {
 
 
   useEffect(() => {
-    // Add dark mode support if it was enabled globally
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       document.documentElement.classList.add('dark');
     }
 
 
-    // 1. Get params if Paystack appended them AFTER the hash (HashRouter standard)
     const hashParams = new URLSearchParams(location.search);
-    // 2. Get params if Paystack appended them BEFORE the hash (Fallback)
     const urlParams = new URLSearchParams(window.location.search);
 
 
@@ -41,7 +39,16 @@ export default function PaymentSuccess() {
     if (reference) {
       fetch(`${API_BASE}/payment/verify?tx_ref=${reference}`)
         .then(async (res) => {
-          const data = await res.json();
+          let data;
+          try {
+            data = await res.json();
+          } catch (e) {
+            setDebugError(`Invalid JSON from backend. HTTP Status: ${res.status}`);
+            setStatus('error');
+            return;
+          }
+
+
           if (res.ok && data.status === 'success') {
             setVoucher({
               code: data.code,
@@ -51,16 +58,16 @@ export default function PaymentSuccess() {
             });
             setStatus('success');
           } else {
-            console.error('Payment verification failed on backend:', data);
+            setDebugError(`Backend Rejected: HTTP ${res.status} | Data: ${JSON.stringify(data)}`);
             setStatus('error');
           }
         })
         .catch(err => {
-          console.error('Network error during verification:', err);
+          setDebugError(`Network/Fetch Error: ${err.message}. Check CORS or if backend is down.`);
           setStatus('error');
         });
     } else {
-      console.error('No reference found in URL');
+      setDebugError(`Missing reference in URL. Search params: ${window.location.search}`);
       setStatus('error');
     }
   }, [location.search]);
@@ -82,6 +89,14 @@ export default function PaymentSuccess() {
         <XCircle size={48} className="text-red-500 mb-4" />
         <h1 className="text-2xl font-bold dark:text-white mb-2">Verification Failed</h1>
         <p className="text-gray-500 dark:text-[#8696A0] mb-6 max-w-sm">We couldn't verify your payment. If you were debited, please contact support.</p>
+        
+        {/* DEBUG BOX */}
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-left text-xs font-mono text-red-600 dark:text-red-400 break-words w-full max-w-md">
+          <strong className="block mb-1 text-red-700 dark:text-red-300">Technical Error Details:</strong>
+          {debugError}
+        </div>
+
+
         <a href="/" className="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl font-bold">
           Return to Home
         </a>
