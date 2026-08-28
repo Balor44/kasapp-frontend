@@ -254,7 +254,7 @@ export default function KasappLanding() {
       {/* NAVIGATION BAR */}
       <header className="sticky top-0 z-40 bg-[#FBFBFB]/90 dark:bg-[#0B141A]/90 backdrop-blur-md border-b border-gray-100/80 dark:border-[#202C33] transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-          
+         
           <div className="flex items-center gap-3">
             <img src={kasappLogo} alt="Kasapp Icon" className="w-10 h-10 rounded-full object-cover mix-blend-multiply dark:mix-blend-normal dark:bg-white dark:p-0.5 shadow-sm border border-gray-200 dark:border-transparent" />
             <div className="flex flex-col justify-center">
@@ -275,7 +275,7 @@ export default function KasappLanding() {
 
 
           <div className="hidden md:flex items-center gap-3">
-            <button 
+            <button
               onClick={() => setIsDarkMode(!isDarkMode)}
               className="p-2.5 rounded-full bg-gray-100 dark:bg-[#202C33] hover:bg-gray-200 dark:hover:bg-[#2A3942] transition-colors"
             >
@@ -293,7 +293,7 @@ export default function KasappLanding() {
 
 
           <div className="md:hidden flex items-center gap-4">
-             <button 
+             <button
               onClick={() => setIsDarkMode(!isDarkMode)}
               className="p-2 rounded-full bg-gray-100 dark:bg-[#202C33] transition-colors"
             >
@@ -401,7 +401,7 @@ export default function KasappLanding() {
              
               <div className="w-[320px] sm:w-[340px] bg-white dark:bg-[#111B21] rounded-[3rem] p-3.5 shadow-2xl border-4 border-gray-900 dark:border-[#222E35] ring-1 ring-gray-950/5 relative z-20 transition-colors">
                 <div className="bg-[#EFEAE2] dark:bg-[#0B141A] rounded-[2.3rem] overflow-hidden flex flex-col h-[520px] border border-gray-200/50 dark:border-[#2A3942] transition-colors">
-                  
+                 
                   {/* Mockup Header */}
                   <div className="bg-[#075E54] dark:bg-[#202C33] text-white px-4 py-3.5 flex items-center justify-between shadow-sm transition-colors">
                     <div className="flex items-center gap-3">
@@ -575,17 +575,30 @@ export default function KasappLanding() {
 
 
       {/* FOOTER */}
-      <footer className="border-t border-gray-200 dark:border-[#202C33] py-10 bg-white dark:bg-[#0B141A] transition-colors duration-300">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-[#8696A0]">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-gray-900 dark:text-white text-sm">KASAPP</span>
-            <span>© 2026 Kasapp Technologies Ltd.</span>
-          </div>
-          <div className="flex items-center gap-6">
+      <footer className="border-t border-gray-200 dark:border-[#202C33] pt-12 pb-8 bg-[#FBFBFB] dark:bg-[#0B141A] transition-colors duration-300">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-[#8696A0]">
             <a href="https://github.com/Balor44/kasapp2/blob/main/README.md" target="_blank" rel="noreferrer" className="hover:text-gray-900 dark:hover:text-white font-medium">Docs</a>
             <a href="https://x.com/kasapp" target="_blank" rel="noreferrer" className="hover:text-gray-900 dark:hover:text-white font-medium">Community</a>
-            <a href="#security" className="hover:text-gray-900 dark:hover:text-white font-medium">Privacy</a>
+            <a href="/privacy-policy.html" className="hover:text-gray-900 dark:hover:text-white font-medium">Privacy Policy</a>
           </div>
+        </div>
+
+
+        {/* META-COMPLIANT BUSINESS FOOTER */}
+        <div className="max-w-6xl mx-auto px-6 mt-8 pt-8 border-t border-gray-200/60 dark:border-[#202C33]/60 flex flex-col items-center text-center">
+          <div className="mb-2">
+            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-wide">KASAPP TECHNOLOGIES</span>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-[#8696A0] mb-1">
+            No 6, Asata Close, Housing estate, Enugu, ENUGU STATE, NIGERIA
+          </p>
+          <p className="text-xs text-gray-500 dark:text-[#8696A0] mb-3">
+            Phone: +234 703 155 1438
+          </p>
+          <p className="text-[10px] text-gray-400 dark:text-[#5B6871]">
+            © 2026 Kasapp Technologies Ltd. All rights reserved.
+          </p>
         </div>
       </footer>
 
@@ -618,8 +631,8 @@ export default function KasappLanding() {
                       type="button"
                       onClick={() => { setBuyAmount(preset); setAmountError(''); }}
                       className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition-colors ${
-                        buyAmount === preset 
-                          ? 'bg-black dark:bg-[#25D366] border-black dark:border-[#25D366] text-white dark:text-[#111B21]' 
+                        buyAmount === preset
+                          ? 'bg-black dark:bg-[#25D366] border-black dark:border-[#25D366] text-white dark:text-[#111B21]'
                           : 'bg-gray-50 dark:bg-[#202C33] border-gray-200 dark:border-[#2A3942] text-gray-600 dark:text-[#E9EDEF] hover:bg-gray-100 dark:hover:bg-[#2A3942]'
                       }`}
                     >
