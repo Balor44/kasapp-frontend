@@ -62,7 +62,7 @@ export default function KasappLanding() {
           amountNaira: Number(buyAmount),
           currency: 'NGN',
           // Now points to the dedicated success route
-          redirect_url: window.location.origin + '/success',
+          redirect_url: window.location.origin + '/#/success',
         }),
       });
 
