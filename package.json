@@ -2,14 +2,15 @@
   "name": "kasapp-frontend",
   "private": true,
   "version": "1.0.0",
-   "scripts": {
+  "scripts": {
     "dev": "vite",
     "build": "vite build"
-    },
-    "dependencies": {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0"
-    },
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.18.3"
+  },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.2.17",
