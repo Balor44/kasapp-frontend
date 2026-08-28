@@ -11,6 +11,7 @@ export default function PaymentSuccess() {
   const location = useLocation();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [debugError, setDebugError] = useState<string>('');
+  const [retryCount, setRetryCount] = useState(0);
   const [voucher, setVoucher] = useState<{
     code: string;
     amountKas: number;
@@ -36,8 +37,15 @@ export default function PaymentSuccess() {
       urlParams.get('trxref');
 
 
-    if (reference) {
-      fetch(`${API_BASE}/payment/verify?tx_ref=${reference}`)
+    if (!reference) {
+      setDebugError(`Missing reference in URL. Search params: ${window.location.search}`);
+      setStatus('error');
+      return;
+    }
+
+
+    const verifyPayment = (ref: string, attemptsLeft: number) => {
+      fetch(`${API_BASE}/payment/verify?tx_ref=${ref}`)
         .then(async (res) => {
           let data;
           try {
@@ -57,6 +65,10 @@ export default function PaymentSuccess() {
               whatsapp_url: data.whatsapp_url,
             });
             setStatus('success');
+          } else if (res.status === 404 && attemptsLeft > 0) {
+            // Race condition hit: Wait 3 seconds and try again
+            setRetryCount(prev => prev + 1);
+            setTimeout(() => verifyPayment(ref, attemptsLeft - 1), 3000);
           } else {
             setDebugError(`Backend Rejected: HTTP ${res.status} | Data: ${JSON.stringify(data)}`);
             setStatus('error');
@@ -66,10 +78,13 @@ export default function PaymentSuccess() {
           setDebugError(`Network/Fetch Error: ${err.message}. Check CORS or if backend is down.`);
           setStatus('error');
         });
-    } else {
-      setDebugError(`Missing reference in URL. Search params: ${window.location.search}`);
-      setStatus('error');
-    }
+    };
+
+
+    // Start verification with 5 max attempts (15 seconds total polling time)
+    verifyPayment(reference, 5);
+
+
   }, [location.search]);
 
 
@@ -77,7 +92,12 @@ export default function PaymentSuccess() {
     return (
       <div className="min-h-screen bg-[#FBFBFB] dark:bg-[#0B141A] text-[#111827] dark:text-[#E9EDEF] font-sans flex flex-col items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mb-4"></div>
-        <p className="text-sm font-semibold">Verifying your Paystack payment...</p>
+        <p className="text-sm font-semibold mb-2">Verifying your Paystack payment...</p>
+        {retryCount > 0 && (
+          <p className="text-xs text-gray-500 animate-pulse">
+            Waiting for Paystack confirmation... (Attempt {retryCount}/5)
+          </p>
+        )}
       </div>
     );
   }
