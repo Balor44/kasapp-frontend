@@ -56,8 +56,9 @@ export default function KasappLanding() {
     if (reference) {
       setIsVerifyingVoucher(true);
       fetch(`${API_BASE}/payment/verify?tx_ref=${reference}`)
-        .then(res => res.json())
-        .then(data => {
+        .then(async (res) => {
+          const data = await res.json();
+          // Now res.ok and data are in the same scope
           if (res.ok && data.status === 'success') {
             setPurchasedVoucher({
               code: data.code,
@@ -65,13 +66,14 @@ export default function KasappLanding() {
               amountNaira: data.amountNaira,
               whatsapp_url: data.whatsapp_url,
             });
+          } else {
+            console.error('Payment verification failed on backend:', data);
           }
         })
-        .catch(err => console.error('Failed to verify voucher:', err))
+        .catch(err => console.error('Network error during verification:', err))
         .finally(() => setIsVerifyingVoucher(false));
     }
   }, []);
-
 
   const openWhatsAppDirect = () => {
     window.open(`https://wa.me/${BOT_PHONE_NUMBER}`, '_blank');
