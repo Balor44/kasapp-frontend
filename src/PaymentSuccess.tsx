@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { CheckCircle, Send, ArrowLeft, XCircle } from 'lucide-react';
 import { BlockDAGWatermark } from './components/BlockDAGAnimation';
 
@@ -7,6 +8,7 @@ const API_BASE = import.meta.env.VITE_API_URL || 'https://kasapp2-production.up.
 
 
 export default function PaymentSuccess() {
+  const location = useLocation();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [voucher, setVoucher] = useState<{
     code: string;
@@ -23,8 +25,17 @@ export default function PaymentSuccess() {
     }
 
 
+    // 1. Get params if Paystack appended them AFTER the hash (HashRouter standard)
+    const hashParams = new URLSearchParams(location.search);
+    // 2. Get params if Paystack appended them BEFORE the hash (Fallback)
     const urlParams = new URLSearchParams(window.location.search);
-    const reference = urlParams.get('reference') || urlParams.get('trxref');
+
+
+    const reference = 
+      hashParams.get('reference') || 
+      hashParams.get('trxref') || 
+      urlParams.get('reference') || 
+      urlParams.get('trxref');
 
 
     if (reference) {
@@ -49,9 +60,10 @@ export default function PaymentSuccess() {
           setStatus('error');
         });
     } else {
+      console.error('No reference found in URL');
       setStatus('error');
     }
-  }, []);
+  }, [location.search]);
 
 
   if (status === 'loading') {
