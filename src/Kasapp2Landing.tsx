@@ -2,23 +2,14 @@ import React, { useState, useEffect } from 'react';
 import {
   Menu, X, Send, PhoneCall, Zap, ArrowLeftRight, Lock, Key, ShieldCheck,
   ExternalLink, CheckCircle, Sparkles, Copy, Check, ArrowRight, Camera,
-  Mic, Paperclip, CheckCircle2, ArrowLeft, ShoppingBag, Sun, Moon
+  Mic, Paperclip, CheckCircle2, ArrowLeft, Sun, Moon
 } from 'lucide-react';
 import { BlockDAGWatermark } from './components/BlockDAGAnimation';
 import kasappLogo from './kasapp-logo.jpg';
 
 
-interface Message {
-  id: number;
-  sender: 'user' | 'bot';
-  text: string;
-  time: string;
-}
-
-
 const BOT_PHONE_NUMBER = import.meta.env.VITE_WHATSAPP_BOT_NUMBER || '2348000000000';
 const API_BASE = import.meta.env.VITE_API_URL || 'https://kasapp2-production.up.railway.app/api';
-const WHATSAPP_BOT_URL = `https://wa.me/${BOT_PHONE_NUMBER}?text=Hi`;
 
 
 export default function KasappLanding() {
@@ -36,12 +27,14 @@ export default function KasappLanding() {
   const [buyAmount, setBuyAmount] = useState<number | ''>(3000);
   const [amountError, setAmountError] = useState('');
   const [isInitializing, setIsInitializing] = useState(false);
+  const [isVerifyingVoucher, setIsVerifyingVoucher] = useState(false);
 
 
   const [purchasedVoucher, setPurchasedVoucher] = useState<{
     code: string;
     amountKas: number;
     amountNaira: number;
+    whatsapp_url: string;
   } | null>(null);
 
 
@@ -54,19 +47,28 @@ export default function KasappLanding() {
   }, [isDarkMode]);
 
 
+  // Handle Paystack return redirect and fetch voucher details from backend
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const voucherCode = urlParams.get('voucher_code') || urlParams.get('code');
-    const kasAmount = urlParams.get('kas') || urlParams.get('amountKas');
-    const nairaAmount = urlParams.get('naira') || urlParams.get('amountNaira');
+    const reference = urlParams.get('reference') || urlParams.get('trxref');
 
 
-    if (voucherCode && kasAmount) {
-      setPurchasedVoucher({
-        code: voucherCode,
-        amountKas: parseFloat(kasAmount),
-        amountNaira: parseFloat(nairaAmount || '3000'),
-      });
+    if (reference) {
+      setIsVerifyingVoucher(true);
+      fetch(`${API_BASE}/payment/verify?tx_ref=${reference}`)
+        .then(res => res.json())
+        .then(data => {
+          if (res.ok && data.status === 'success') {
+            setPurchasedVoucher({
+              code: data.code,
+              amountKas: data.amountKas,
+              amountNaira: data.amountNaira,
+              whatsapp_url: data.whatsapp_url,
+            });
+          }
+        })
+        .catch(err => console.error('Failed to verify voucher:', err))
+        .finally(() => setIsVerifyingVoucher(false));
     }
   }, []);
 
@@ -94,8 +96,7 @@ export default function KasappLanding() {
           phone: buyPhone,
           amountNaira: Number(buyAmount),
           currency: 'NGN',
-          gateway: 'paystack',
-          redirect_url: `${window.location.origin}/`,
+          redirect_url: window.location.origin + window.location.pathname,
         }),
       });
 
@@ -104,19 +105,13 @@ export default function KasappLanding() {
       if (res.ok && data.payment_url) {
         window.location.href = data.payment_url;
       } else {
-        alert(data.error || `Failed to initialize Paystack.`);
+        alert(data.error || 'Failed to initialize Paystack checkout.');
       }
     } catch {
       alert('Network error initializing payment gateway.');
     } finally {
       setIsInitializing(false);
     }
-  };
-
-
-  const buildWaRedeemLink = (code: string) => {
-    const text = encodeURIComponent(`redeem ${code}`);
-    return `https://wa.me/${BOT_PHONE_NUMBER}?text=${text}`;
   };
 
 
@@ -153,6 +148,16 @@ export default function KasappLanding() {
   };
 
 
+  if (isVerifyingVoucher) {
+    return (
+      <div className="min-h-screen bg-[#FBFBFB] dark:bg-[#0B141A] text-[#111827] dark:text-[#E9EDEF] font-sans flex flex-col items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mb-4"></div>
+        <p className="text-sm font-semibold">Verifying your Paystack payment...</p>
+      </div>
+    );
+  }
+
+
   if (purchasedVoucher) {
     return (
       <div className="min-h-screen bg-[#FBFBFB] dark:bg-[#0B141A] text-[#111827] dark:text-[#E9EDEF] font-sans flex flex-col justify-between relative overflow-hidden transition-colors duration-300">
@@ -177,7 +182,7 @@ export default function KasappLanding() {
               </span>
             </div>
             <a
-              href={buildWaRedeemLink(purchasedVoucher.code)}
+              href={purchasedVoucher.whatsapp_url}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-4 px-4 bg-black dark:bg-[#25D366] hover:bg-gray-800 dark:hover:bg-[#1DA851] text-white dark:text-[#111B21] rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition-transform"
