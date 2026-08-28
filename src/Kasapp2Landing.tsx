@@ -17,7 +17,7 @@ interface Message {
 
 
 const BOT_PHONE_NUMBER = import.meta.env.VITE_WHATSAPP_BOT_NUMBER || '2348000000000';
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://kasapp2-production.up.railway.app/api';
 const WHATSAPP_BOT_URL = `https://wa.me/${BOT_PHONE_NUMBER}?text=Hi`;
 
 
