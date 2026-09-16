@@ -61,7 +61,6 @@ export default function KasappLanding() {
           phone: buyPhone,
           amountNaira: Number(buyAmount),
           currency: 'NGN',
-          // Now points to the dedicated success route
           redirect_url: window.location.origin + '/#/success',
         }),
       });
@@ -182,9 +181,6 @@ export default function KasappLanding() {
             <a href="#features" className="hover:text-gray-900 dark:hover:text-white transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-gray-900 dark:hover:text-white transition-colors">How it Works</a>
             <a href="#security" className="hover:text-gray-900 dark:hover:text-white transition-colors">Security</a>
-            <a href="https://kaspa.university" target="_blank" rel="noreferrer" className="text-[#16A34A] dark:text-[#25D366] hover:text-[#15803D] dark:hover:text-[#1DA851] flex items-center gap-1 font-semibold transition-colors">
-              Kaspa University <ExternalLink size={13} />
-            </a>
           </nav>
 
 
@@ -226,12 +222,9 @@ export default function KasappLanding() {
             <a href="#features" onClick={() => setMenuOpen(false)} className="text-gray-800 dark:text-[#E9EDEF] font-medium">Features</a>
             <a href="#how-it-works" onClick={() => setMenuOpen(false)} className="text-gray-800 dark:text-[#E9EDEF] font-medium">How it Works</a>
             <a href="#security" onClick={() => setMenuOpen(false)} className="text-gray-800 dark:text-[#E9EDEF] font-medium">Security</a>
-            <a href="https://kaspa.university" target="_blank" rel="noreferrer" className="text-[#16A34A] dark:text-[#25D366] font-medium flex items-center gap-1">
-              Kaspa University <ExternalLink size={14} />
-            </a>
             <hr className="border-gray-100 dark:border-[#2A3942]" />
             <button onClick={() => { setMenuOpen(false); setShowBuyModal(true); }} className="py-2.5 text-gray-900 dark:text-[#E9EDEF] font-semibold border border-gray-300 dark:border-[#2A3942] rounded-xl">
-              Buy Kaspa Voucher
+              Buy Funding Voucher
             </button>
             <button onClick={openWhatsAppDirect} className="py-2.5 bg-black dark:bg-[#25D366] text-white dark:text-[#111B21] font-semibold rounded-xl flex items-center justify-center gap-2">
                Start on WhatsApp
@@ -254,7 +247,7 @@ export default function KasappLanding() {
             <div className="lg:col-span-6 space-y-7">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D9FDD3] dark:bg-[#005C4B]/30 border border-[#25D366]/30 dark:border-[#005C4B] text-[#075E54] dark:text-[#25D366] text-xs font-semibold uppercase tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse"></span>
-                Kaspa Payments. Inside WhatsApp.
+                Instant Payments. Inside WhatsApp.
               </div>
 
 
@@ -266,7 +259,7 @@ export default function KasappLanding() {
 
 
               <p className="text-lg text-gray-600 dark:text-[#8696A0] font-normal max-w-md leading-relaxed">
-                Send KAS. Buy airtime. Pay bills. <br />
+                Send funds. Buy airtime. Pay bills. <br />
                 All directly from WhatsApp.
               </p>
 
@@ -333,7 +326,7 @@ export default function KasappLanding() {
                   <div className="p-4 flex-1 space-y-3.5 overflow-y-auto font-sans text-xs">
                     <div className="flex justify-end">
                       <div className="bg-[#D9FDD3] dark:bg-[#005C4B] text-gray-900 dark:text-[#E9EDEF] p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[80%] transition-colors">
-                        <p className="font-medium">Send 50 KAS to John</p>
+                        <p className="font-medium">Send 5000 to John</p>
                         <span className="text-[9px] text-gray-500 dark:text-[#8696A0]/80 block text-right mt-1">9:41 AM ✓✓</span>
                       </div>
                     </div>
@@ -342,7 +335,7 @@ export default function KasappLanding() {
                         <p className="font-semibold text-[#075E54] dark:text-[#25D366] flex items-center gap-1 mb-1">
                           <span className="w-3 h-3 rounded-full bg-[#25D366] inline-block"></span> Kasapp
                         </p>
-                        <p className="text-gray-600 dark:text-[#E9EDEF]">You're sending 50 KAS to John</p>
+                        <p className="text-gray-600 dark:text-[#E9EDEF]">You're transferring 5,000 to John</p>
                         <span className="text-[9px] text-gray-400 dark:text-[#8696A0] block text-right mt-1">9:41 AM</span>
                       </div>
                     </div>
@@ -350,7 +343,7 @@ export default function KasappLanding() {
                       <div className="bg-white dark:bg-[#202C33] p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[88%] border border-[#25D366]/30 dark:border-[#25D366]/20 transition-colors">
                         <div className="flex items-center gap-2 mb-1.5">
                           <CheckCircle2 size={16} className="text-[#25D366]" />
-                          <span className="font-bold text-gray-900 dark:text-[#E9EDEF] text-[11px]">50 KAS sent to John</span>
+                          <span className="font-bold text-gray-900 dark:text-[#E9EDEF] text-[11px]">Transfer Complete</span>
                         </div>
                         <p className="text-[10px] text-gray-500 dark:text-[#8696A0]">Transaction confirmed</p>
                         <div className="mt-2 pt-2 border-t border-gray-100 dark:border-[#2A3942] text-right text-[9px] text-gray-400 dark:text-[#8696A0]">9:41 AM</div>
@@ -384,13 +377,13 @@ export default function KasappLanding() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white dark:bg-[#111B21] p-6 rounded-2xl border border-gray-200/70 dark:border-[#202C33] shadow-sm transition-colors">
             <div className="w-10 h-10 rounded-xl bg-[#D9FDD3] dark:bg-[#005C4B]/40 text-[#075E54] dark:text-[#25D366] flex items-center justify-center mb-5"><Send size={18} /></div>
-            <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">Send KAS</h3>
-            <p className="text-xs text-gray-500 dark:text-[#8696A0] leading-relaxed">Send Kaspa to anyone instantly. Kasapp users or external wallets.</p>
+            <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">Send Funds</h3>
+            <p className="text-xs text-gray-500 dark:text-[#8696A0] leading-relaxed">Send digital funds to anyone instantly across our secure network.</p>
           </div>
           <div className="bg-white dark:bg-[#111B21] p-6 rounded-2xl border border-gray-200/70 dark:border-[#202C33] shadow-sm transition-colors">
             <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-5"><PhoneCall size={18} /></div>
             <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">Buy Airtime & Data</h3>
-            <p className="text-xs text-gray-500 dark:text-[#8696A0] leading-relaxed">MTN, Airtel, Glo, 9mobile. Pay for airtime and data with KAS.</p>
+            <p className="text-xs text-gray-500 dark:text-[#8696A0] leading-relaxed">MTN, Airtel, Glo, 9mobile. Pay for airtime and data instantly.</p>
           </div>
           <div className="bg-white dark:bg-[#111B21] p-6 rounded-2xl border border-gray-200/70 dark:border-[#202C33] shadow-sm transition-colors">
             <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-5"><Zap size={18} /></div>
@@ -399,8 +392,8 @@ export default function KasappLanding() {
           </div>
           <div className="bg-white dark:bg-[#111B21] p-6 rounded-2xl border border-gray-200/70 dark:border-[#202C33] shadow-sm transition-colors">
             <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-5"><ArrowLeftRight size={18} /></div>
-            <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">Fiat ↔ KAS</h3>
-            <p className="text-xs text-gray-500 dark:text-[#8696A0] leading-relaxed">Move between fiat and KAS using familiar Nigerian payment rails.</p>
+            <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">Fiat ↔ Digital Balance</h3>
+            <p className="text-xs text-gray-500 dark:text-[#8696A0] leading-relaxed">Move between fiat and your digital balance using familiar Nigerian payment rails.</p>
           </div>
         </div>
       </section>
@@ -412,7 +405,7 @@ export default function KasappLanding() {
           <div className="lg:col-span-7 space-y-8">
             <div>
               <span className="text-xs font-bold tracking-wider text-[#22C55E] dark:text-[#25D366] uppercase">How it works</span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-950 dark:text-white mt-1">Crypto without the learning curve.</h2>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-950 dark:text-white mt-1">Digital payments without the learning curve.</h2>
             </div>
             <div className="space-y-8 pt-4">
               <div className="flex items-start gap-5">
@@ -421,7 +414,7 @@ export default function KasappLanding() {
               </div>
               <div className="flex items-start gap-5">
                 <div className="w-8 h-8 rounded-full bg-[#D9FDD3] dark:bg-[#005C4B]/40 text-[#075E54] dark:text-[#25D366] font-bold text-xs flex items-center justify-center shrink-0">02</div>
-                <div><h4 className="text-sm font-bold text-gray-900 dark:text-white">Tell Kasapp what you need</h4><p className="text-xs text-gray-500 dark:text-[#8696A0] mt-1">Send KAS, buy airtime, pay a bill and more.</p></div>
+                <div><h4 className="text-sm font-bold text-gray-900 dark:text-white">Tell Kasapp what you need</h4><p className="text-xs text-gray-500 dark:text-[#8696A0] mt-1">Send funds, buy airtime, pay a bill and more.</p></div>
               </div>
               <div className="flex items-start gap-5">
                 <div className="w-8 h-8 rounded-full bg-[#D9FDD3] dark:bg-[#005C4B]/40 text-[#075E54] dark:text-[#25D366] font-bold text-xs flex items-center justify-center shrink-0">03</div>
@@ -443,20 +436,20 @@ export default function KasappLanding() {
         <div className="bg-white dark:bg-[#111B21] p-8 sm:p-12 rounded-3xl border border-gray-200 dark:border-[#202C33] shadow-sm transition-colors">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-5 space-y-3">
-              <span className="text-xs font-bold tracking-wider text-[#22C55E] dark:text-[#25D366] uppercase">Your Keys. Your KAS.</span>
-              <h2 className="text-3xl font-extrabold text-gray-950 dark:text-white">Non-custodial by design.</h2>
-              <p className="text-xs text-gray-500 dark:text-[#8696A0] leading-relaxed">Kasapp doesn't hold your funds. You're in control, always.</p>
+              <span className="text-xs font-bold tracking-wider text-[#22C55E] dark:text-[#25D366] uppercase">Your Money. Your Control.</span>
+              <h2 className="text-3xl font-extrabold text-gray-950 dark:text-white">Bank-Grade Security.</h2>
+              <p className="text-xs text-gray-500 dark:text-[#8696A0] leading-relaxed">Advanced encryption ensures your funds are always secure and under your control.</p>
             </div>
             <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-5 rounded-2xl bg-gray-50 dark:bg-[#202C33] border border-gray-100 dark:border-transparent transition-colors">
                 <Lock size={18} className="text-[#22C55E] dark:text-[#25D366] mb-3" />
-                <h4 className="text-sm font-bold text-gray-900 dark:text-white">Non-custodial</h4>
-                <p className="text-[11px] text-gray-500 dark:text-[#8696A0] mt-1.5 leading-relaxed">Kasapp never holds your funds.</p>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white">Fully Secured</h4>
+                <p className="text-[11px] text-gray-500 dark:text-[#8696A0] mt-1.5 leading-relaxed">Your transactions are protected with military-grade encryption.</p>
               </div>
               <div className="p-5 rounded-2xl bg-gray-50 dark:bg-[#202C33] border border-gray-100 dark:border-transparent transition-colors">
                 <Key size={18} className="text-[#22C55E] dark:text-[#25D366] mb-3" />
-                <h4 className="text-sm font-bold text-gray-900 dark:text-white">Your recovery phrase</h4>
-                <p className="text-[11px] text-gray-500 dark:text-[#8696A0] mt-1.5 leading-relaxed">Back up your wallet and restore it anywhere.</p>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white">Secure Backup</h4>
+                <p className="text-[11px] text-gray-500 dark:text-[#8696A0] mt-1.5 leading-relaxed">Back up your account and restore it anywhere securely.</p>
               </div>
               <div className="p-5 rounded-2xl bg-gray-50 dark:bg-[#202C33] border border-gray-100 dark:border-transparent transition-colors">
                 <ShieldCheck size={18} className="text-[#22C55E] dark:text-[#25D366] mb-3" />
@@ -502,6 +495,7 @@ export default function KasappLanding() {
         {/* META-COMPLIANT BUSINESS FOOTER */}
         <div className="max-w-6xl mx-auto px-6 mt-8 pt-8 border-t border-gray-200/60 dark:border-[#202C33]/60 flex flex-col items-center text-center">
           <div className="mb-2">
+            {/* MAKE SURE THIS MATCHES YOUR CAC CERTIFICATE EXACTLY */}
             <span className="font-bold text-gray-900 dark:text-white text-sm tracking-wide">KASAPP TECHNOLOGIES</span>
           </div>
           <p className="text-xs text-gray-500 dark:text-[#8696A0] mb-1">
@@ -531,7 +525,7 @@ export default function KasappLanding() {
                 <span className="text-[10px] font-bold text-[#22C55E] tracking-widest uppercase leading-none">Money. Fast. Simple. Private.</span>
               </div>
             </div>
-            <p className="text-xs text-gray-500 dark:text-[#8696A0] mb-5 text-center">Pay via Card or Bank Transfer to generate a redeemable Kaspa voucher code.</p>
+            <p className="text-xs text-gray-500 dark:text-[#8696A0] mb-5 text-center">Pay via Card or Bank Transfer to generate a redeemable funding voucher code.</p>
 
 
             <form onSubmit={handlePurchaseVoucher} className="flex flex-col gap-5">
@@ -611,3 +605,5 @@ export default function KasappLanding() {
     </div>
   );
 }
+
+
