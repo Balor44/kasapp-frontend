@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Menu, X, Send, PhoneCall, Zap, ArrowLeftRight, Lock, Key, ShieldCheck,
-  ExternalLink, CheckCircle, Sparkles, Copy, Check, ArrowRight, Camera,
-  Mic, Paperclip, CheckCircle2, ArrowLeft, Sun, Moon
+  CheckCircle, Sparkles, Copy, Check, ArrowRight, Camera,
+  Mic, Paperclip, CheckCircle2, Sun, Moon
 } from 'lucide-react';
 import { BlockDAGWatermark } from './components/BlockDAGAnimation';
 import kasappLogo from './kasapp-logo.jpg';
@@ -61,6 +61,7 @@ export default function KasappLanding() {
           phone: buyPhone,
           amountNaira: Number(buyAmount),
           currency: 'NGN',
+          // Now points to the dedicated success route
           redirect_url: window.location.origin + '/#/success',
         }),
       });
@@ -178,9 +179,9 @@ export default function KasappLanding() {
 
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 dark:text-[#8696A0]">
-            <a href="#features" className="hover:text-gray-900 dark:hover:text-white transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-gray-900 dark:hover:text-white transition-colors">How it Works</a>
-            <a href="#security" className="hover:text-gray-900 dark:hover:text-white transition-colors">Security</a>
+            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer">Features</button>
+            <button onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer">How it Works</button>
+            <button onClick={() => document.getElementById('security')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer">Security</button>
           </nav>
 
 
@@ -219,9 +220,9 @@ export default function KasappLanding() {
         {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden bg-white dark:bg-[#111B21] border-b border-gray-200 dark:border-[#202C33] px-6 py-4 flex flex-col gap-4 shadow-lg absolute w-full left-0">
-            <a href="#features" onClick={() => setMenuOpen(false)} className="text-gray-800 dark:text-[#E9EDEF] font-medium">Features</a>
-            <a href="#how-it-works" onClick={() => setMenuOpen(false)} className="text-gray-800 dark:text-[#E9EDEF] font-medium">How it Works</a>
-            <a href="#security" onClick={() => setMenuOpen(false)} className="text-gray-800 dark:text-[#E9EDEF] font-medium">Security</a>
+            <button onClick={() => { setMenuOpen(false); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-left text-gray-800 dark:text-[#E9EDEF] font-medium">Features</button>
+            <button onClick={() => { setMenuOpen(false); document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-left text-gray-800 dark:text-[#E9EDEF] font-medium">How it Works</button>
+            <button onClick={() => { setMenuOpen(false); document.getElementById('security')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-left text-gray-800 dark:text-[#E9EDEF] font-medium">Security</button>
             <hr className="border-gray-100 dark:border-[#2A3942]" />
             <button onClick={() => { setMenuOpen(false); setShowBuyModal(true); }} className="py-2.5 text-gray-900 dark:text-[#E9EDEF] font-semibold border border-gray-300 dark:border-[#2A3942] rounded-xl">
               Buy Funding Voucher
@@ -495,7 +496,6 @@ export default function KasappLanding() {
         {/* META-COMPLIANT BUSINESS FOOTER */}
         <div className="max-w-6xl mx-auto px-6 mt-8 pt-8 border-t border-gray-200/60 dark:border-[#202C33]/60 flex flex-col items-center text-center">
           <div className="mb-2">
-            {/* MAKE SURE THIS MATCHES YOUR CAC CERTIFICATE EXACTLY */}
             <span className="font-bold text-gray-900 dark:text-white text-sm tracking-wide">KASAPP TECHNOLOGIES</span>
           </div>
           <p className="text-xs text-gray-500 dark:text-[#8696A0] mb-1">
